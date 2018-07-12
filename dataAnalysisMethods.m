@@ -127,7 +127,7 @@ if hemisphere == 1
     
     % When plotting graphs label figures with specific figure name, NOT
     % just Figure(#)
-    hemiSide = 'Right Hemisphere'; % Used to label Figure as 'Right Hemisphere'
+    hemiSide = ' Right Hemisphere'; % Used to label Figure as 'Right Hemisphere'
     for i = 1:16
         for j = 2:5
             if length(allts{j,i}) >= 1 ;
@@ -137,7 +137,7 @@ if hemisphere == 1
     end
 
 else 
-    hemiSide = 'Left Hemisphere'; % Used to label Figure as 'Left Hemisphere'
+    hemiSide = ' Left Hemisphere'; % Used to label Figure as 'Left Hemisphere'
     for i = 17:32
         for j = 2:5
             if length(allts{j,i}) >= 1 ;
@@ -477,13 +477,22 @@ result = neuralTraj(runIdx, dat, 'method', method, 'xDim', xDim,...
 plot3D(seqTrain, 'xorth', 'dimsToPlot', 1:3);
 % 7/11/2018
 % Edited to name figures specific descriptive name
-figureName = input('(Use single or double quotes) Figure Name: ');
+msg = '\nUse single or double quotes. \nWrite Description. \nExample: TNC(#)_Day(#)\nFigureName: ';
+figureName = input(msg);
 savefig(figureName);
-figure('Name', figureName);
-% set(gcf, figureName);
-% savefig(input('Figure Name: '));
 
-% uisave(savefig);
+% 7/12/2018
+% Specify Figure Title
+newFigureName = strcat(figureName, hemiSide);
+set(gcf, 'Name', newFigureName, 'NumberTitle', 'off');
+
+% uisave(savefig('figureName'));
+
+% uisave(gcf, {'figureName', 'hemiSide'});
+
+% uisave('gcf', 'newFigureName');
+savefig(newFigureName);
+
 % NOTES:
 % - This figure shows the time-evolution of neural population
 %   activity on a single-trial basis.  Each trajectory is extracted from
