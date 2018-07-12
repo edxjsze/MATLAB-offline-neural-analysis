@@ -211,7 +211,7 @@ posttime=.2;   %seconds
 reltotalspikes = [relspikes1;relspikes3;relspikes4;relspikes6];
 
 
-%% Uses graphPSTH to create a single PSTH for a neuron given an event
+%% Uses graphPSTH to create a single PSTH for a neuron given an event (KEEP Code - Commented out for faster running purposes)
 % Uses graphtestPSTH to create a PSTH which represents every trial except one, so that the left out trial can be used to test a decoder.
 
 % % neuronnum= input('Enter Neuron Number(1-#neurons):');
@@ -265,7 +265,7 @@ mu=[]; % estimated mean of each variable
 pcatotalcount=[pcacount1;pcacount2;pcacount3;pcacount4];
 [coeff,pcascore,latent,tsquared,explained,mu]=pca(pcatotalcount);
 
-%% Plot PCA from 1 to N
+%% Plot PCA from 1 to N (KEEP Code - Commented out for faster running purposes)
 %Explained is percentage of total variance in each PC
 
 % %  figure;
@@ -276,7 +276,7 @@ pcatotalcount=[pcacount1;pcacount2;pcacount3;pcacount4];
 % %  end
 % %  plot(sumexplained) %Figure 2: This plot will show what percentage (out of 100) of the variance is explained by by using each PC from 1 to x.
  
- %% Graph PCs
+ %% Graph PCs (KEEP Code - Commented out for faster running purposes)
 %Sumexplained shows a cumulative sum of the variance percentage
 %Choose N for how many PC to graph
 
@@ -426,8 +426,11 @@ uisave('dat');
 %% Done
 disp('done')
 
-[file1,path1]=uigetfile('*.mat'); % Gets all table files
-load([path1,file1])
+% 7/11/2018
+% Commented out below b/c it's unnecessary to call already saved file &
+% path
+% [file1,path1]=uigetfile('*.mat'); % Gets all table files
+% load([path1,file1])
 
 %% ===========================================
 % 1) Basic extraction of neural trajectories
@@ -472,7 +475,14 @@ result = neuralTraj(runIdx, dat, 'method', method, 'xDim', xDim,...
 % Plot neural trajectories in 3D space
 
 plot3D(seqTrain, 'xorth', 'dimsToPlot', 1:3);
-savefig(input('Figure Name: '));
+% 7/11/2018
+% Edited to name figures specific descriptive name
+figureName = input('(Use single or double quotes) Figure Name: ');
+savefig(figureName);
+figure('Name', figureName);
+% set(gcf, figureName);
+% savefig(input('Figure Name: '));
+
 % uisave(savefig);
 % NOTES:
 % - This figure shows the time-evolution of neural population

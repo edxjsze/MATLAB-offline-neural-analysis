@@ -54,7 +54,7 @@ function plot3D(seq, xspec, varargin)
     % Creates star marker of when trial starts (*), triangle where decision
     % was made (^,)and at the end (o)
     plot3(dat(1,1), dat(2,1), dat(3,1), '*', 'linewidth', lw, 'MarkerFaceColor', currentColor, 'MarkerEdgeColor', currentColor);
-    plot3(dat(1,5), dat(2,5), dat(3,5), '^', 'linewidth', lw, 'MarkerFaceColor', currentColor, 'MarkerEdgeColor', currentColor);
+    plot3(dat(1,10), dat(2,10), dat(3,10), '^', 'linewidth', lw, 'MarkerFaceColor', currentColor, 'MarkerEdgeColor', currentColor);
 %     set(h, {'MarkerFaceColor'}, get(h, 'Color'));
     plot3(dat(1,end), dat(2,end), dat(3,end), 'o', 'linewidth', lw, 'MarkerFaceColor', currentColor, 'MarkerEdgeColor', currentColor);
 %     set(g, {'MarkerFaceColor'}, get(g, 'Color'));
