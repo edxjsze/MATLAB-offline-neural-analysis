@@ -323,14 +323,14 @@ plxDir = path;
 plxName = file;
 
 if ~isempty(tsevs(17)) 
-    strobed_events = true;
+    strobed_events = false; %Switched to false get PRAC to run correctly
 else
-    strobed_events = false;
+    strobed_events = true; %Switched to true get PRAC to run correctly
 end
 decoderPath='+NeuroToolbox/';
 
 % load neuron timestamps "neuronsIn" and event timestamps "eventTS"
-if strobed_events
+if strobed_events == true
     [neuronsIn, eventTS] = plx2mat3(plxDir, plxName,decoderPath);
     Reference=eventTS;
 else
@@ -369,8 +369,25 @@ DecoderOutput = template.classify(Spikes,Reference,...
 
 % quantify performance
 Correct_Trials = cellfun(@strcmp,DecoderOutput.Decision,DecoderOutput.Event);
-Accuracy=mean(Correct_Trials)
+Accuracy=mean(Correct_Trials);
 
+%% Confusion Matrix
+% 7/17/2018
+%Row # is relative event #
+%Column # is Classification of Event
+ConfusionValues = DecoderOutput.Classification_Parameter;
+
+event_key = DecoderOutput.DecoderSpec.Template.TemplateSource.event_key;
+event_decode = [];
+for i = 1:length(Correct_Trials)
+    [min_values, event_decode(i)] = min(ConfusionValues(i,:));
+end
+confusion_numbers = confusionmat(event_key, event_decode');
+confusion_matrix = (confusionmat(event_key, event_decode'))./length(Correct_Trials);
+correct1 = confusion_matrix(1,1);
+correct2 = confusion_matrix(2,2);
+correct3 = confusion_matrix(3,3);
+correct4 = confusion_matrix(4,4);
 %% Get Correct Trials
 
 newreltotalspikes = [];
@@ -441,7 +458,7 @@ disp('done')
 % Results will be saved in mat_results/runXXX/, where XXX is runIdx.
 % Use a new runIdx for each dataset.
 
-cd('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\gpfa_v0203\gpfa_v0203');
+% cd('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\gpfa_v0203\gpfa_v0203');
 runIdx = input('Enter Run Index Number: ');
 
 % Select method to extraclcct neural trajectories:
@@ -449,7 +466,7 @@ runIdx = input('Enter Run Index Number: ');
 % 'fa'   -- Smooth and factor analysis
 % 'ppca' -- Smooth and probabilistic principal components analysis
 % 'pca'  -- Smooth and principal components analysis
-method = 'pca';
+method = 'gpfa';
 
 % Select number of latent dimensions
 xDim = 8;
@@ -538,54 +555,54 @@ fprintf('[Depending on the dataset, this can take many minutes to hours.]\n');
 
 
 %% ========================================================
-% 2) Full cross-validation to find:
-%  - optimal state dimensionality for all methods
-%  - optimal smoothing kernel width for two-stage methods
-% ========================================================
-
-% Select number of cross-validation folds
-numFolds = 4;
-
-% Perform cross-validation for different state dimensionalities.
-% Results are saved in mat_results/runXXX/, where XXX is runIdx.
-for xDim = [2 5 8]
-  neuralTraj(runIdx, dat, 'method',  'pca', 'xDim', xDim, 'numFolds', numFolds);
-  neuralTraj(runIdx, dat, 'method', 'ppca', 'xDim', xDim, 'numFolds', numFolds);
-  neuralTraj(runIdx, dat, 'method',   'fa', 'xDim', xDim, 'numFolds', numFolds);
-  neuralTraj(runIdx, dat, 'method', 'gpfa', 'xDim', xDim, 'numFolds', numFolds);
-end
-fprintf('\n');
-% NOTES:
-% - These function calls are computationally demanding.  Cross-validation 
-%   takes a long time because a separate model has to be fit for each 
-%   state dimensionality and each cross-validation fold.
-
-% Plot prediction error versus state dimensionality.
-% Results files are loaded from mat_results/runXXX/, where XXX is runIdx.
-kernSD = 30; % select kernSD for two-stage methods
-plotPredErrorVsDim(runIdx, kernSD);
-% NOTES:
-% - Using this figure, we i) compare the performance (i.e,,
-%   predictive ability) of different methods for extracting neural
-%   trajectories, and ii) find the optimal latent dimensionality for
-%   each method.  The optimal dimensionality is that which gives the
-%   lowest prediction error.  For the two-stage methods, the latent
-%   dimensionality and smoothing kernel width must be jointly
-%   optimized, which requires looking at the next figure.
-% - In this particular example, the optimal dimensionality is 5. This
-%   implies that, even though the raw data are evolving in a
-%   53-dimensional space (i.e., there are 53 units), the system
-%   appears to be using only 5 degrees of freedom due to firing rate
-%   correlations across the neural population.
-% - Analogous to Figure 5A in Yu et al., J Neurophysiol, 2009.
-
-% Plot prediction error versus kernelSD.
-% Results files are loaded from mat_results/runXXX/, where XXX is runIdx.
-xDim = 5; % select state dimensionality
-plotPredErrorVsKernSD(runIdx, xDim);
-% NOTES:
-% - This figure is used to find the optimal smoothing kernel for the
-%   two-stage methods.  The same smoothing kernel is used for all units.
-% - In this particular example, the optimal standard deviation of a
-%   Gaussian smoothing kernel with FA is 30 ms.
-% - Analogous to Figures 5B and 5C in Yu et al., J Neurophysiol, 2009.
+% % 2) Full cross-validation to find:
+% %  - optimal state dimensionality for all methods
+% %  - optimal smoothing kernel width for two-stage methods
+% % ========================================================
+% 
+% % Select number of cross-validation folds
+% numFolds = 4;
+% 
+% % Perform cross-validation for different state dimensionalities.
+% % Results are saved in mat_results/runXXX/, where XXX is runIdx.
+% for xDim = [2 5 8]
+%   neuralTraj(runIdx, dat, 'method',  'pca', 'xDim', xDim, 'numFolds', numFolds);
+%   neuralTraj(runIdx, dat, 'method', 'ppca', 'xDim', xDim, 'numFolds', numFolds);
+%   neuralTraj(runIdx, dat, 'method',   'fa', 'xDim', xDim, 'numFolds', numFolds);
+%   neuralTraj(runIdx, dat, 'method', 'gpfa', 'xDim', xDim, 'numFolds', numFolds);
+% end
+% fprintf('\n');
+% % NOTES:
+% % - These function calls are computationally demanding.  Cross-validation 
+% %   takes a long time because a separate model has to be fit for each 
+% %   state dimensionality and each cross-validation fold.
+% 
+% % Plot prediction error versus state dimensionality.
+% % Results files are loaded from mat_results/runXXX/, where XXX is runIdx.
+% kernSD = 30; % select kernSD for two-stage methods
+% plotPredErrorVsDim(runIdx, kernSD);
+% % NOTES:
+% % - Using this figure, we i) compare the performance (i.e,,
+% %   predictive ability) of different methods for extracting neural
+% %   trajectories, and ii) find the optimal latent dimensionality for
+% %   each method.  The optimal dimensionality is that which gives the
+% %   lowest prediction error.  For the two-stage methods, the latent
+% %   dimensionality and smoothing kernel width must be jointly
+% %   optimized, which requires looking at the next figure.
+% % - In this particular example, the optimal dimensionality is 5. This
+% %   implies that, even though the raw data are evolving in a
+% %   53-dimensional space (i.e., there are 53 units), the system
+% %   appears to be using only 5 degrees of freedom due to firing rate
+% %   correlations across the neural population.
+% % - Analogous to Figure 5A in Yu et al., J Neurophysiol, 2009.
+% 
+% % Plot prediction error versus kernelSD.
+% % Results files are loaded from mat_results/runXXX/, where XXX is runIdx.
+% xDim = 5; % select state dimensionality
+% plotPredErrorVsKernSD(runIdx, xDim);
+% % NOTES:
+% % - This figure is used to find the optimal smoothing kernel for the
+% %   two-stage methods.  The same smoothing kernel is used for all units.
+% % - In this particular example, the optimal standard deviation of a
+% %   Gaussian smoothing kernel with FA is 30 ms.
+% % - Analogous to Figures 5B and 5C in Yu et al., J Neurophysiol, 2009.
