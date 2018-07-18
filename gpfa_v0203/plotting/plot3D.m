@@ -21,7 +21,7 @@ function plot3D(seq, xspec, varargin)
 % @ 2009 Byron Yu -- byronyu@stanford.edu
 
   dimsToPlot = 1:3;
-  nPlotMax   = 20;
+  nPlotMax   = 400;
   redTrials  = [];
   assignopts(who, varargin);
 
@@ -73,3 +73,5 @@ function plot3D(seq, xspec, varargin)
   xlabel(str1, 'interpreter', 'latex', 'fontsize', 24);
   ylabel(str2, 'interpreter', 'latex', 'fontsize', 24);
   zlabel(str3, 'interpreter', 'latex', 'fontsize', 24);
+  
+end
