@@ -11,8 +11,8 @@ edge(length(edge))=edge(length(edge))+0.0005;
 for i=1:dimensions(1) %32 neurons-
     for j=1:length(event) %100 trials (*one had 99, but will fix in future)
         neuronbins=zeros(1,length(edge)-1);
-        begin = event(j)-edges(1);
-        endin = event(j)+edges(end);
+        begin = event(j)-abs(edges(1));
+        endin = event(j)+abs(edges(end));
         neuron=[]; %This is the neuron response to a single event
         for k=1:dimensions(2)% 113295 max number of spikes per neuron
             if newspikes(i,k)>= begin &&newspikes(i,k)<=endin
