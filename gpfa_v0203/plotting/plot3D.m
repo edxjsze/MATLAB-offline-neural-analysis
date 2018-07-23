@@ -21,7 +21,7 @@ function plot3D(seq, xspec, varargin)
 % @ 2009 Byron Yu -- byronyu@stanford.edu
 
   dimsToPlot = 1:3;
-  nPlotMax   = 400;
+  nPlotMax   = 20;
   redTrials  = [];
   assignopts(who, varargin);
 
