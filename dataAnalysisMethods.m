@@ -33,13 +33,13 @@
 % 
 % datafile = [path,file];
 % [tscounts, wfcounts, evcounts, slowcounts] = plx_info(datafile,1); 
-% 
-% %%
-%     % Fixed: Problems with PRAC 03 day 23
-%     % Modified above code to be more robust, should work going forward,
-%     % may need to revisit if encountering unexpected problems.
-%     % 
-%     %
+
+%%
+    % Fixed: Problems with PRAC 03 day 23
+    % Modified above code to be more robust, should work going forward,
+    % may need to revisit if encountering unexpected problems.
+    % 
+    %
 % [nunits1, nchannels1] = size( tscounts ); 
 % allts = cell(nunits1, nchannels1);
 % for iunit = 0:nunits1-1   % starting with unit 0 (unsorted) 
@@ -68,7 +68,7 @@
 % 		end
 % 	end
 % end
-% 
+% % 
 % events=[];
 % j=0;
 % if length(svStrobed)>1
@@ -169,7 +169,7 @@
 %         event6= [event6; events(i,2)];
 %     end
 % end
-% 
+
 % newspikes=[];
 % 
 % for i=1:length(spiketimes)
@@ -185,13 +185,13 @@
 % edge=0:bin:0.4;
 % 
 % % classifier bin size
-% binsize=.001;  %seconds
+% bin_size=.001;  %seconds
 % 
 % % classifier window before time zero 
-% pretime=-.2;   %seconds
+% pre_time=-.2;   %seconds
 % 
 % % classifier window after time zero 
-% posttime=.2;   %seconds
+% post_time=.2;   %seconds
 % 
 % %edge endpoints are extended to solve a problem using discretize.
 % 
@@ -200,10 +200,16 @@
 % %neuron with data put into 100 bins (-0.2 : 0.2) seconds.
 % %Binned every 1 ms(see edge above)
 % 
-% [relspikes1]= Eventspiketimes(event1, newspikes, edge);
-% [relspikes3]= Eventspiketimes(event3, newspikes, edge);
-% [relspikes4]= Eventspiketimes(event4, newspikes, edge);
-% [relspikes6]= Eventspiketimes(event6, newspikes, edge);
+% % [relspikes1]= Eventspiketimes(event1, newspikes, edge);
+% % [relspikes3]= Eventspiketimes(event3, newspikes, edge);
+% % [relspikes4]= Eventspiketimes(event4, newspikes, edge);
+% % [relspikes6]= Eventspiketimes(event6, newspikes, edge);
+
+% [relspikes1]= event_spike_times(event1, newspikes, event_window);
+% [relspikes3]= event_spike_times(event3, newspikes, event_window);
+% [relspikes4]= event_spike_times(event4, newspikes, event_window);
+% [relspikes6]= event_spike_times(event6, newspikes, event_window);
+
 % 
 % 
 % %This next one is important-has spikes in bins
@@ -315,15 +321,130 @@
 % % %     legend('Tilt 1','Tilt 3','Tilt 4','Tilt 6');
 % % %     hold off
 % % % end
-%% 
+
+%% Section from main.m
+
+total_bins = 400;
+bin_size = 0.001;
+total_trials = 100;
+total_events = 4;
+pre_time = 0.2;
+post_time = 0.2;
+
+event_window = -(abs(pre_time)) : bin_size : (abs(post_time));
+
+original_path = uigetdir(pwd);
+animal_list = dir(original_path);
+
+if length(animal_list) > 2
+    for animal = 3: length(animal_list)
+        animal_name = animal_list(animal).name;
+        animal_path = [animal_list(animal).folder, '/', animal_name];
+        %% Run if you want to parse .plx or comment out to skip
+%         parsed_path = parser(animal_path, animal_name, total_trials);
+        
+        %% Use the code commented out below to skip parsing
+        parsed_path = [animal_path, '/parsed_plx'];
+        
+        %% Run if you want to calculate the PSTH or comment it out to skip
+%         psth_path = calculate_PSTH(parsed_path, animal_name, total_bins, bin_size, pre_time, post_time);
+        
+        %% Use code commeneted out below to skip PSTH calculations
+        psth_path = [parsed_path, '/psth'];
+        
+        %% Run if you want to graph all of the PSTHs or comment it out to skip
+%         graph_PSTH(psth_path, animal_name, total_bins, total_trials, total_events, pre_time, post_time);
+    end
+end
+    
+%% Section from calculate_PSTH.m
+
+parsed_mat_path = strcat(parsed_path, '/*.mat');
+parsed_files = dir(parsed_mat_path);
+
+for h = 1: length(parsed_files)
+    file = [parsed_path, '/', parsed_files(h).name];
+    load(file);
+    
+    % Turns neuron matrix into PSTH form for the different events
+    
+    % Event 1
+    [all_rel_spikes_1] = event_spike_times(event1, all_spike_times, ...
+        total_bins, bin_size, pre_time, post_time);
+    raster_1 = sum(all_rel_spikes_1);
+    % Event 3
+    [all_rel_spikes_3] = event_spike_times(event3, all_spike_times, ...
+        total_bins, bin_size, pre_time, post_time);
+    raster_3 = sum(all_rel_spikes_3);
+    % Event 4
+    [all_rel_spikes_4] = event_spike_times(event4, all_spike_times, ...
+        total_bins, bin_size, pre_time, post_time);
+    raster_4 = sum(all_rel_spikes_4);
+    % Event 6
+    [all_rel_spikes_6] = event_spike_times(event6, all_spike_times, ...
+        total_bins, bin_size, pre_time, post_time);
+    raster_6 = sum(all_rel_spikes_6);
+    disp('All PSTH Done');
+    
+    % Total relative spikes is the (# trials)x(bins*neurons) matrix
+    % which has each event trial for each neuron with data put in the #
+    % of total bins defined by the window given by the pre and post
+    % times and stepped by the bin size
+    
+    all_total_rel_spikes = [all_rel_spikes_1; all_rel_spikes_3; all_rel_spikes_4; all_rel_spikes_6];
+    
+    %% Saving the file
+    [~ ,namestr, ~] = fileparts(file);
+    filename = strcat('PSTH.format.', namestr);
+    filename = strcat(filename, '.mat');
+    matfile = fullfile(psth_path, filename);
+    save(matfile, 'all_total_rel_spikes', 'total_neurons', 'all_rel_spikes_1', 'all_rel_spikes_3', ...
+        'all_rel_spikes_4', 'all_rel_spikes_6', 'raster_1', 'raster_3', 'raster_4', 'raster_6');
+end
+
+%%
 
 %Added from other code PSTHclassifer_example_code_original.m
 % create PSTH object 
-[file,path]=uigetfile('*.plx');
-path_file = uigetfile('*.mat');
-load(path_file);
+[file,path]=uigetfile('*.plx'); % Keep just commented out for faster
+[file_mat, path_mat] = uigetfile('*.mat');
+load([path_mat, file_mat]);
 plxDir = path;
 plxName = file;
+
+% 7/24/2018
+
+% Put each row in all_spike_times into a cell in spk (We want 1 row, NOT 1
+% column)
+% spk = all_spike_times; %% Commented out b/c this doesn't work (Index
+%                           exceeds matrix dimensions
+
+% for i = 1:length(all_spike_times)
+%     spk = all_spike_times(i,:);
+% end %% This for loop didn't work
+
+[row, col] = size(all_spike_times);
+i = 1; % Initialize variable for while loop
+j = 1; % Initialize variable for while loop
+% while i < (cols + 1)
+%     while j < (rows + 1)
+%         spk = all_spike_times(i,:);
+%         j = j + 1;
+%     end
+%     i = i + 1;
+% end %% This loop didn't work
+
+spk = []; % Initialize empty array
+while i < (col)
+    while j < (row + 1)
+        spk{j} = all_spike_times(j,:);
+%         Spikes = Spikes(1:length(spk),:);
+        j = j + 1;
+    end
+    i = i + 1;
+end
+
+% spk = spk(1:length(all_spike_times),:); %% This didn't work
 
 if ~isempty(tsevs(17)) 
     strobed_events = false; %Switched to false get PRAC to run correctly
@@ -353,206 +474,210 @@ end
 % remove neuron waveform data 
 Spikes=neuronsIn(:,[1,2]);
 totalSpikesLength = length(Spikes);
-if hemisphere == 1
-    Spikes = Spikes(1:length(spk),:);
-else
-    Spikes = Spikes((totalSpikesLength-length(spk)+2:end),:);
-end
-
-PSTH = NeuroToolbox.PSTHToolbox.PSTH(Spikes,Reference,...
-    'bin_size',binsize,'PSTH_window',[pretime,posttime],...
-    'show_progress',true);
-
-% create template from PSTH object
-template = NeuroToolbox.PSTHToolbox.SU_Classifier(PSTH);
-
-% peform classification using template 
-DecoderOutput = template.classify(Spikes,Reference,...
-    'SameDataSet',true);
-
-% quantify performance
-Correct_Trials = cellfun(@strcmp,DecoderOutput.Decision,DecoderOutput.Event);
-Accuracy=mean(Correct_Trials);
-
-%% Confusion Matrix
-% 7/17/2018
-%Row # is relative event #
-%Column # is Classification of Event
-ConfusionValues = DecoderOutput.Classification_Parameter;
-
-event_key = DecoderOutput.DecoderSpec.Template.TemplateSource.event_key;
-event_decode = [];
-for i = 1:length(Correct_Trials)
-    [min_values, event_decode(i)] = min(ConfusionValues(i,:));
-end
-confusion_numbers = confusionmat(event_key, event_decode');
-confusion_matrix = (confusionmat(event_key, event_decode'))./length(Correct_Trials);
-correct1 = confusion_matrix(1,1);
-correct2 = confusion_matrix(2,2);
-correct3 = confusion_matrix(3,3);
-correct4 = confusion_matrix(4,4);
-%% Get Correct Trials
-
-newreltotalspikes = [];
-for i = 1:length(Correct_Trials)
-    if Correct_Trials(i)
-        newreltotalspikes = [newreltotalspikes ; reltotalspikes(i,:)];
+%%
+for hemisphere = 1:2
+    if hemisphere == 1
+        Spikes = Spikes(1:length(spk),:);
+    else
+        Spikes = Spikes((totalSpikesLength-length(spk)+2:end),:);
     end
-end
-
-
-%% Organize Data
-% Puts data from reltotalspikes into format for GPFA
-
-[rows, columns] = size(newreltotalspikes);
-% While loop to create structure data with first field 'fieldId'
-k = 1; %Initialize variable k for while loop
-while k < rows+1
-    dat(k).trialId = k;
-    k = k+1;
-end
-
-timeSlots = (length(edge)-1);
-newTimeSlots = timeSlots;
-
-% Organize reltotalspikes into an array
-newTimeSlots = timeSlots;
-x = 1; % Initialize variable for while loop
-rtspikes(x).neuron = [reshape(newreltotalspikes(1,:), timeSlots, dimensions)]';
-x = x + 1;
-
-while newTimeSlots < (columns)
-    while x < (rows + 1)
-        rtspikes(x).neuron = [reshape(newreltotalspikes(x,:), timeSlots, dimensions)]';
-        newTimeSlots = newTimeSlots + timeSlots;
-        x = x + 1;
+    
+    PSTH = NeuroToolbox.PSTHToolbox.PSTH(Spikes,Reference,...
+        'bin_size',bin_size,'PSTH_window',[pre_time,post_time],...
+        'show_progress',true);
+    
+    % create template from PSTH object
+    template = NeuroToolbox.PSTHToolbox.SU_Classifier(PSTH);
+    
+    % peform classification using template
+    DecoderOutput = template.classify(Spikes,Reference,...
+        'SameDataSet',true);
+    
+    % quantify performance
+    Correct_Trials = cellfun(@strcmp,DecoderOutput.Decision,DecoderOutput.Event);
+    Accuracy=mean(Correct_Trials);
+    
+    %% Confusion Matrix
+    % 7/17/2018
+    %Row # is relative event #
+    %Column # is Classification of Event
+    ConfusionValues = DecoderOutput.Classification_Parameter;
+    
+    event_key = DecoderOutput.DecoderSpec.Template.TemplateSource.event_key;
+    event_decode = [];
+    for i = 1:length(Correct_Trials)
+        [min_values, event_decode(i)] = min(ConfusionValues(i,:));
     end
-end
-
-newTimeSlots = timeSlots;
-n = 1; %Initialize variable n for while loop
-dat(n).spikes = rtspikes(n).neuron;
-while newTimeSlots < (columns)
-    while n < (rows + 1)
-        dat(n).spikes = rtspikes(n).neuron;
-        newTimeSlots = newTimeSlots + timeSlots;
-        n = n + 1;
+    confusion_numbers = confusionmat(event_key, event_decode');
+    confusion_matrix = (confusionmat(event_key, event_decode'))./length(Correct_Trials);
+    correct1 = confusion_matrix(1,1);
+    correct2 = confusion_matrix(2,2);
+    correct3 = confusion_matrix(3,3);
+    correct4 = confusion_matrix(4,4);
+    %% Get Correct Trials
+    
+    newreltotalspikes = [];
+    for i = 1:length(Correct_Trials)
+        if Correct_Trials(i)
+            newreltotalspikes = [newreltotalspikes ; all_total_rel_spikes(i,:)];
+        end
     end
+    
+    
+    %% Organize Data
+    % Puts data from reltotalspikes into format for GPFA
+    
+    [rows, columns] = size(newreltotalspikes);
+    % While loop to create structure data with first field 'fieldId'
+    k = 1; %Initialize variable k for while loop
+    while k < rows+1
+        dat(k).trialId = k;
+        k = k+1;
+    end
+    bin = 0.001;
+    window=0:bin:0.4;
+    timeSlots = (length(window)-1);
+    newTimeSlots = timeSlots;
+    
+    % Organize reltotalspikes into an array
+    newTimeSlots = timeSlots;
+    x = 1; % Initialize variable for while loop
+    rtspikes(x).neuron = [reshape(newreltotalspikes(1,:), timeSlots, dimensions)]';
+    x = x + 1;
+    
+    while newTimeSlots < (columns)
+        while x < (rows + 1)
+            rtspikes(x).neuron = [reshape(newreltotalspikes(x,:), timeSlots, dimensions)]';
+            newTimeSlots = newTimeSlots + timeSlots;
+            x = x + 1;
+        end
+    end
+    
+    newTimeSlots = timeSlots;
+    n = 1; %Initialize variable n for while loop
+    dat(n).spikes = rtspikes(n).neuron;
+    while newTimeSlots < (columns)
+        while n < (rows + 1)
+            dat(n).spikes = rtspikes(n).neuron;
+            newTimeSlots = newTimeSlots + timeSlots;
+            n = n + 1;
+        end
+    end
+    
+    uisave('dat');
+    
+    
+    %% Done
+    disp('done')
+    
+    % 7/11/2018
+    % Commented out below b/c it's unnecessary to call already saved file &
+    % path
+    % [file1,path1]=uigetfile('*.mat'); % Gets all table files
+    % load([path1,file1])
+    
+    %% ===========================================
+    % 1) Basic extraction of neural trajectories
+    % ===========================================
+    %load('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\gpfa_v0203\gpfa_v0203\mat_sample\sample_dat');
+    %load('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\ourData2'); % Our version of Data
+    
+    % Results will be saved in mat_results/runXXX/, where XXX is runIdx.
+    % Use a new runIdx for each dataset.
+    
+    % cd('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\gpfa_v0203\gpfa_v0203');
+    runIdx = input('Enter Run Index Number: ');
+    
+    % Select method to extraclcct neural trajectories:
+    % 'gpfa' -- Gaussian-process factor analysis
+    % 'fa'   -- Smooth and factor analysis
+    % 'ppca' -- Smooth and probabilistic principal components analysis
+    % 'pca'  -- Smooth and principal components analysis
+    method = 'gpfa';
+    
+    % Select number of latent dimensions
+    xDim = 8;
+    % NOTE: The optimal dimensionality should be found using
+    %       cross-validation (Section 2) below.
+    
+    % If using a two-stage method ('fa', 'ppca', or 'pca'), select
+    % standard deviation (in msec) of Gaussian smoothing kernel.
+    kernSD = 30;
+    % NOTE: The optimal kernel width should be found using
+    %       cross-validation (Section 2) below.
+    
+    % Extract neural trajectories
+    result = neuralTraj(runIdx, dat, 'method', method, 'xDim', xDim,...
+        'kernSDList', kernSD);
+    % NOTE: This function does most of the heavy lifting.
+    
+    % Orthonormalize neural trajectories
+    [estParams, seqTrain] = postprocess(result, 'kernSD', kernSD);
+    % NOTE: The importance of orthnormalization is described on
+    %       pp.621-622 of Yu et al., J Neurophysiol, 2009.
+    
+    % Plot neural trajectories in 3D space
+    
+    plot3D(seqTrain, 'xorth', 'dimsToPlot', 1:3);
+    % 7/11/2018
+    % Edited to name figures specific descriptive name
+    msg = '\nUse single or double quotes. \nWrite Description. \nExample: TNC(#)_Day(#)\nFigureName: ';
+    figureName = input(msg);
+    savefig(figureName);
+    
+    % 7/12/2018
+    % Specify Figure Title
+    newFigureName = strcat(figureName, hemiSide);
+    set(gcf, 'Name', newFigureName, 'NumberTitle', 'off');
+    
+    % uisave(savefig('figureName'));
+    
+    % uisave(gcf, {'figureName', 'hemiSide'});
+    
+    % uisave('gcf', 'newFigureName');
+    savefig(newFigureName);
+    
+    % NOTES:
+    % - This figure shows the time-evolution of neural population
+    %   activity on a single-trial basis.  Each trajectory is extracted from
+    %   the activity of all units on a single trial.
+    % - This particular example is based on multi-electrode recordings
+    %   in premotor and motor cortices within a 400 ms period starting 300 ms
+    %   before movement onset.  The extracted trajectories appear to
+    %   follow the same general path, but there are clear trial-to-trial
+    %   differences that can be related to the physical arm movement.
+    % - Analogous to Figure 8 in Yu et al., J Neurophysiol, 2009.
+    % WARNING:
+    % - If the optimal dimensionality (as assessed by cross-validation in
+    %   Section 2) is greater than 3, then this plot may mask important
+    %   features of the neural trajectories in the dimensions not plotted.
+    %   This motivates looking at the next plot, which shows all latent
+    %   dimensions.
+    
+    % Plot each dimension of neural trajectories versus time
+    plotEachDimVsTime(seqTrain, 'xorth', result.binWidth);
+    % NOTES:
+    % - These are the same neural trajectories as in the previous figure.
+    %   The advantage of this figure is that we can see all latent
+    %   dimensions (one per panel), not just three selected dimensions.
+    %   As with the previous figure, each trajectory is extracted from the
+    %   population activity on a single trial.  The activity of each unit
+    %   is some linear combination of each of the panels.  The panels are
+    %   ordered, starting with the dimension of greatest covariance
+    %   (in the case of 'gpfa' and 'fa') or variance (in the case of
+    %   'ppca' and 'pca').
+    % - From this figure, we can roughly estimate the optimal
+    %   dimensionality by counting the number of top dimensions that have
+    %   'meaningful' temporal structure.   In this example, the optimal
+    %   dimensionality appears to be about 5.  This can be assessed
+    %   quantitatively using cross-validation in Section 2.
+    % - Analogous to Figure 7 in Yu et al., J Neurophysiol, 2009.
+    
+    fprintf('\n');
+    fprintf('Basic extraction and plotting of neural trajectories is complete.\n');
+    fprintf('Press any key to start cross-validation...\n');
+    fprintf('[Depending on the dataset, this can take many minutes to hours.]\n');
 end
-
-uisave('dat');
-
-
-%% Done
-disp('done')
-
-% 7/11/2018
-% Commented out below b/c it's unnecessary to call already saved file &
-% path
-% [file1,path1]=uigetfile('*.mat'); % Gets all table files
-% load([path1,file1])
-
-%% ===========================================
-% 1) Basic extraction of neural trajectories
-% ===========================================
-%load('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\gpfa_v0203\gpfa_v0203\mat_sample\sample_dat');
-%load('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\ourData2'); % Our version of Data
-
-% Results will be saved in mat_results/runXXX/, where XXX is runIdx.
-% Use a new runIdx for each dataset.
-
-% cd('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\gpfa_v0203\gpfa_v0203');
-runIdx = input('Enter Run Index Number: ');
-
-% Select method to extraclcct neural trajectories:
-% 'gpfa' -- Gaussian-process factor analysis
-% 'fa'   -- Smooth and factor analysis
-% 'ppca' -- Smooth and probabilistic principal components analysis
-% 'pca'  -- Smooth and principal components analysis
-method = 'gpfa';
-
-% Select number of latent dimensions
-xDim = 8;
-% NOTE: The optimal dimensionality should be found using 
-%       cross-validation (Section 2) below.
-
-% If using a two-stage method ('fa', 'ppca', or 'pca'), select
-% standard deviation (in msec) of Gaussian smoothing kernel.
-kernSD = 30;
-% NOTE: The optimal kernel width should be found using 
-%       cross-validation (Section 2) below.
-
-% Extract neural trajectories
-result = neuralTraj(runIdx, dat, 'method', method, 'xDim', xDim,... 
-                    'kernSDList', kernSD);
-% NOTE: This function does most of the heavy lifting.
-
-% Orthonormalize neural trajectories
-[estParams, seqTrain] = postprocess(result, 'kernSD', kernSD);
-% NOTE: The importance of orthnormalization is described on 
-%       pp.621-622 of Yu et al., J Neurophysiol, 2009.
-
-% Plot neural trajectories in 3D space
-
-plot3D(seqTrain, 'xorth', 'dimsToPlot', 1:3);
-% 7/11/2018
-% Edited to name figures specific descriptive name
-msg = '\nUse single or double quotes. \nWrite Description. \nExample: TNC(#)_Day(#)\nFigureName: ';
-figureName = input(msg);
-savefig(figureName);
-
-% 7/12/2018
-% Specify Figure Title
-newFigureName = strcat(figureName, hemiSide);
-set(gcf, 'Name', newFigureName, 'NumberTitle', 'off');
-
-% uisave(savefig('figureName'));
-
-% uisave(gcf, {'figureName', 'hemiSide'});
-
-% uisave('gcf', 'newFigureName');
-savefig(newFigureName);
-
-% NOTES:
-% - This figure shows the time-evolution of neural population
-%   activity on a single-trial basis.  Each trajectory is extracted from
-%   the activity of all units on a single trial.
-% - This particular example is based on multi-electrode recordings
-%   in premotor and motor cortices within a 400 ms period starting 300 ms 
-%   before movement onset.  The extracted trajectories appear to
-%   follow the same general path, but there are clear trial-to-trial
-%   differences that can be related to the physical arm movement. 
-% - Analogous to Figure 8 in Yu et al., J Neurophysiol, 2009.
-% WARNING:
-% - If the optimal dimensionality (as assessed by cross-validation in 
-%   Section 2) is greater than 3, then this plot may mask important 
-%   features of the neural trajectories in the dimensions not plotted.  
-%   This motivates looking at the next plot, which shows all latent 
-%   dimensions.
-
-% Plot each dimension of neural trajectories versus time
-plotEachDimVsTime(seqTrain, 'xorth', result.binWidth);
-% NOTES:
-% - These are the same neural trajectories as in the previous figure.
-%   The advantage of this figure is that we can see all latent
-%   dimensions (one per panel), not just three selected dimensions.  
-%   As with the previous figure, each trajectory is extracted from the 
-%   population activity on a single trial.  The activity of each unit 
-%   is some linear combination of each of the panels.  The panels are
-%   ordered, starting with the dimension of greatest covariance
-%   (in the case of 'gpfa' and 'fa') or variance (in the case of
-%   'ppca' and 'pca').
-% - From this figure, we can roughly estimate the optimal
-%   dimensionality by counting the number of top dimensions that have
-%   'meaningful' temporal structure.   In this example, the optimal 
-%   dimensionality appears to be about 5.  This can be assessed
-%   quantitatively using cross-validation in Section 2.
-% - Analogous to Figure 7 in Yu et al., J Neurophysiol, 2009.
-
-fprintf('\n');
-fprintf('Basic extraction and plotting of neural trajectories is complete.\n');
-fprintf('Press any key to start cross-validation...\n');
-fprintf('[Depending on the dataset, this can take many minutes to hours.]\n');
 % savefig('ourGraph');
 %pause;
 
