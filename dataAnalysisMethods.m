@@ -328,7 +328,7 @@ total_bins = 400;
 bin_size = 0.001;
 total_trials = 100;
 total_events = 4;
-pre_time = 0.2;
+pre_time = -0.2;
 post_time = 0.2;
 
 event_window = -(abs(pre_time)) : bin_size : (abs(post_time));
@@ -341,19 +341,19 @@ if length(animal_list) > 2
         animal_name = animal_list(animal).name;
         animal_path = [animal_list(animal).folder, '/', animal_name];
         %% Run if you want to parse .plx or comment out to skip
-%         parsed_path = parser(animal_path, animal_name, total_trials);
+        parsed_path = parser(animal_path, animal_name, total_trials);
         
         %% Use the code commented out below to skip parsing
-        parsed_path = [animal_path, '/parsed_plx'];
+%         parsed_path = [animal_path, '/parsed_plx'];
         
         %% Run if you want to calculate the PSTH or comment it out to skip
-%         psth_path = calculate_PSTH(parsed_path, animal_name, total_bins, bin_size, pre_time, post_time);
+        psth_path = calculate_PSTH(parsed_path, animal_name, total_bins, bin_size, pre_time, post_time);
         
         %% Use code commeneted out below to skip PSTH calculations
-        psth_path = [parsed_path, '/psth'];
+%         psth_path = [parsed_path, '/psth'];
         
         %% Run if you want to graph all of the PSTHs or comment it out to skip
-%         graph_PSTH(psth_path, animal_name, total_bins, total_trials, total_events, pre_time, post_time);
+        graph_PSTH(psth_path, animal_name, total_bins, total_trials, total_events, pre_time, post_time);
     end
 end
     
@@ -406,7 +406,7 @@ end
 
 %Added from other code PSTHclassifer_example_code_original.m
 % create PSTH object 
-[file,path]=uigetfile('*.plx'); % Keep just commented out for faster
+% [file,path]=uigetfile('*.plx'); % Keep just commented out for faster
 [file_mat, path_mat] = uigetfile('*.mat');
 load([path_mat, file_mat]);
 plxDir = path;
@@ -446,12 +446,12 @@ end
 
 % spk = spk(1:length(all_spike_times),:); %% This didn't work
 
-if ~isempty(tsevs(17)) 
-    strobed_events = false; %Switched to false get PRAC to run correctly
+if length(tsevs(17)) > 1
+    strobed_events = true; %Switched to false get PRAC to run correctly
 else
-    strobed_events = true; %Switched to true get PRAC to run correctly
+    strobed_events = false; %Switched to true get PRAC to run correctly
 end
-decoderPath='+NeuroToolbox/';
+decoderPath='C:\Users\Adrian & Gloria\Tilt-Project\+NeuroToolbox\';
 
 % load neuron timestamps "neuronsIn" and event timestamps "eventTS"
 if strobed_events == true
@@ -677,6 +677,7 @@ for hemisphere = 1:2
     fprintf('Basic extraction and plotting of neural trajectories is complete.\n');
     fprintf('Press any key to start cross-validation...\n');
     fprintf('[Depending on the dataset, this can take many minutes to hours.]\n');
+    disp(hemisphere)
 end
 % savefig('ourGraph');
 %pause;
