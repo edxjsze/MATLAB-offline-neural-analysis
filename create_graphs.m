@@ -613,8 +613,17 @@ function [] = create_graphs()
                 graph_name = [sheet_name '.png'];
                 saveas(gcf, fullfile(graph_path, graph_name));
             end
-        else
+        elseif contains(sheet_name, 'Correlation')
+            if ~contains(sheet_name, 'Change')
+                scatter(data(:,2), data(:,1), 'k', 'filled');
+                title(sheet_name);
+                graph_name = [sheet_name '.png'];
+                saveas(gcf, fullfile(graph_path, graph_name));
+            end
             %TODO find out what to do with the last 2 sheets in excel file
+
+        else
+            
             continue;
         end
     end
