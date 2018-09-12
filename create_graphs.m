@@ -749,15 +749,32 @@ function [] = create_graphs()
                 coefficents = polyfit(data(:,2), data(:,1), 1);
                 y_fit = polyval(coefficents, xlim);
                 plot(xlim, y_fit, 'r');
+                ytickformat('%.2f');
+                title(sheet_name);
+                hold off;
+                graph_name = [sheet_name '.png'];
+                saveas(gcf, fullfile(graph_path, graph_name));
+
+            elseif contains(sheet_name, 'Change')
+                days = (1:5:30)-1
+                direct = data(1,:)
+                control = data(2,:);
+                indirect = data(3,:);
+                plot(days, direct, 'r', 'LineWidth', 4);
+                hold on
+                plot(days, indirect, 'b', 'LineWidth', 4);
+                plot(days, control, 'k', 'LineWidth', 4);
+                y_limits = ylim;
+                y_midpoint = (y_limits(1) + y_limits(2)) / 2;
+                yticks([y_limits(1) y_midpoint y_limits(2)]);
+                ytickformat('%.2f');
                 title(sheet_name);
                 hold off;
                 graph_name = [sheet_name '.png'];
                 saveas(gcf, fullfile(graph_path, graph_name));
             end
-            %TODO find out what to do with the last 2 sheets in excel file
-
         else
-            continue;
+            disp(sheet_name);
         end
     end
 end
