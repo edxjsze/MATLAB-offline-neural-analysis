@@ -139,7 +139,7 @@ function [] = create_graphs()
                 lg.Orientation = 'Horizontal';
 
                 title(sheet_name);
-                ytickformat('%.2f')
+                ytickformat('%.2f');
                 hold off;
                 graph_name = [sheet_name '.png'];
                 saveas(gcf, fullfile(graph_path, graph_name));
@@ -195,6 +195,7 @@ function [] = create_graphs()
                 lg.Orientation = 'Horizontal';
 
                 title(['EARLY ' sheet_name]);
+                ytickformat('%.2f');
                 hold off;
                 graph_name = ['EARLY_', sheet_name '.png'];
                 saveas(gcf, fullfile(graph_path, graph_name));
@@ -250,6 +251,7 @@ function [] = create_graphs()
                 lg.Orientation = 'Horizontal';
 
                 title(['LATE ' sheet_name]);
+                ytickformat('%.2f');
                 hold off;
                 graph_name = ['LATE_', sheet_name '.png'];
                 saveas(gcf, fullfile(graph_path, graph_name));
@@ -301,7 +303,7 @@ function [] = create_graphs()
                 lg.Orientation = 'Horizontal';
 
                 title(sheet_name);
-                ytickformat('%.2f')
+                ytickformat('%.2f');
                 hold off;
                 graph_name = [sheet_name '.png'];
                 saveas(gcf, fullfile(graph_path, graph_name));
