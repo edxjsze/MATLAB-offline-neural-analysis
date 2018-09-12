@@ -23,6 +23,7 @@ function [] = create_graphs()
        mkdir(dir_path, 'graphs');
     end
 
+    axis_limits = [];
     for i = 1:length(sheets)
         sheet_name = sheets{i};
         [data,txt,raw] = xlsread(filename, sheet_name);
@@ -36,10 +37,10 @@ function [] = create_graphs()
         non_learning_std_error = [];
         control_std_error = [];
         overall_mean = [];
-        outputTable = table;
+        % outputTable = table;
         if contains(sheet_name, 'Bar')
             figure('visible','on');
-            if contains(sheet_name, 'Peformance')
+            if contains(sheet_name, 'Performance')
                 all_means = [data(3) data(13) data(23); data(8) data(18) data(28)];
                 all_std = [data(4) data(14) data(24); data(9) data(19) data(29)];
                 upper_bounds = all_means + all_std;
@@ -64,17 +65,12 @@ function [] = create_graphs()
                 current_graph.Clipping = 'off';
 
                 %% Set axes limits
-                % max and min are taken twice since the first call returns a 3x1 matrix with the max and min
-                % value across the categories. The second call then returns the max and min for the overall graph.
-                upper_limit = max(max(upper_bounds));
-                lower_limit = min(min(lower_bounds));
-                % Add a buffer to the bounds so that the error bars are not on the exact edge of the graph
-                upper_limit = upper_limit + (upper_limit) * 0.05;
-                lower_limit = lower_limit + (lower_limit) * 0.05;
-                y_midpoint = (upper_limit + lower_limit)/2;
-                y_midpoint = (upper_limit + lower_limit)/2;
-                ylim([min([0 lower_limit]) upper_limit]);
-                yticks([lower_limit 0 upper_limit]);
+                sheet_strs = strsplit(sheet_name, '_');
+                current_sheet = sheet_strs{1};
+                all_sheets = axis_limits(:,1);
+                limit_index = find(contains(all_sheets, current_sheet));
+                ylim([axis_limits{limit_index, 2} axis_limits{limit_index, 4}])
+                yticks([axis_limits{limit_index, 2} axis_limits{limit_index, 3} axis_limits{limit_index, 4}]);
 
                 %% Sets colors for bars
                 for k = 1:size(all_means,2)
@@ -86,20 +82,71 @@ function [] = create_graphs()
                 end
 
                 %% Creates Legends
-                yticks([lower_limit 0 upper_limit]);
                 lg = legend('Learning','Non-learning','Control');
                 legend('boxoff');
                 lg.Location = 'BestOutside';
                 lg.Orientation = 'Horizontal';
 
                 title(sheet_name);
+                ytickformat('%.2f')
+                hold off;
+                graph_name = [sheet_name '.png'];
+                saveas(gcf, fullfile(graph_path, graph_name));
+            elseif contains(sheet_name, 'SynRed')
+                all_means = [data(23) data(3); data(28) data(8)];
+                all_std = [data(24) data(4); data(29) data(9)];
+                upper_bounds = all_means + all_std;
+                lower_bounds = all_means - all_std;
+                categories = categorical({'Early','Late'});
+                
+                ax = axes;
+                b = bar(all_means, 'BarWidth', 1);
+                xticks(ax,[1 2]);
+                xticklabels(ax,{ 'Early', 'Late'});
+                
+                hold on;
+                %% Adds error bars
+                groups = size(all_means, 1);
+                bars = size(all_means, 2);
+                groupwidth = min(0.8, bars/(bars + 1.5));
+                for k = 1:bars
+                    center = (1:groups) - groupwidth/2 + (2*k-1) * groupwidth / (2*bars);
+                    errorbar(center, all_means(:,k), all_std(:,k), 'k', 'linestyle', 'none');
+                end
+                current_graph = gca;
+                current_graph.Clipping = 'off';
+
+                %% Set axes limits
+                sheet_strs = strsplit(sheet_name, '_');
+                current_sheet = sheet_strs{1};
+                all_sheets = axis_limits(:,1);
+                limit_index = find(contains(all_sheets, current_sheet));
+                ylim([axis_limits{limit_index, 2} axis_limits{limit_index, 4}])
+                yticks([axis_limits{limit_index, 2} axis_limits{limit_index, 3} axis_limits{limit_index, 4}]);
+
+                %% Sets colors for bars
+                for k = 1:size(all_means,2)
+                    if mod(k, 2) == 0
+                        b(k).FaceColor = 'b';
+                        b(k-1).FaceColor = 'r';
+                    end
+                end
+
+                %% Creates Legends
+                lg = legend('Direct','Indirect');
+                legend('boxoff');
+                lg.Location = 'BestOutside';
+                lg.Orientation = 'Horizontal';
+
+                title(sheet_name);
+                ytickformat('%.2f')
                 hold off;
                 graph_name = [sheet_name '.png'];
                 saveas(gcf, fullfile(graph_path, graph_name));
             elseif contains(sheet_name, 'Timng')
                 %% Early
-                all_means = [data(3) data(43); data(13) data(53)];
-                all_std = [data(4) data(44); data(14) data(54)];
+                all_means = [data(3) data(13); data(43) data(53)];
+                all_std = [data(4) data(14); data(44) data(54)];
                 upper_bounds = all_means + all_std;
                 lower_bounds = all_means - all_std;
                 categories = categorical({'Indirect','Direct'});
@@ -154,11 +201,10 @@ function [] = create_graphs()
 
                 %% Late
                 figure('visible','on'); 
-                all_means = [data(8) data(48); data(18) data(58)];
-                all_std = [data(9) data(49); data(19) data(59)];
+                all_means = [data(8) data(18); data(48) data(58)];
+                all_std = [data(9) data(19); data(49) data(59)];
                 upper_bounds = all_means + all_std;
                 lower_bounds = all_means - all_std;
-                categories = categorical({'Indirect','Direct'});
                 
                 ax = axes;
                 b = bar(all_means, 'BarWidth', 1);
@@ -232,16 +278,12 @@ function [] = create_graphs()
                 current_graph.Clipping = 'off';
 
                 %% Set axes limits
-                % max and min are taken twice since the first call returns a 3x1 matrix with the max and min
-                % value across the categories. The second call then returns the max and min for the overall graph.
-                upper_limit = max(max(upper_bounds));
-                lower_limit = min(min(lower_bounds));
-                % Add a buffer to the bounds so that the error bars are not on the exact edge of the graph
-                upper_limit = upper_limit + (upper_limit) * 0.05;
-                lower_limit = lower_limit + (lower_limit) * 0.05;
-                y_midpoint = (upper_limit + lower_limit)/2;
-                ylim([min([0 lower_limit]) upper_limit]);
-                yticks([lower_limit 0 upper_limit]);
+                sheet_strs = strsplit(sheet_name, '_');
+                current_sheet = sheet_strs{1};
+                all_sheets = axis_limits(:,1);
+                limit_index = find(contains(all_sheets, current_sheet));
+                ylim([axis_limits{limit_index, 2} axis_limits{limit_index, 4}])
+                yticks([axis_limits{limit_index, 2} axis_limits{limit_index, 3} axis_limits{limit_index, 4}]);
 
                 %% Sets colors for bars
                 for k = 1:size(all_means,2)
@@ -259,12 +301,12 @@ function [] = create_graphs()
                 lg.Orientation = 'Horizontal';
 
                 title(sheet_name);
+                ytickformat('%.2f')
                 hold off;
                 graph_name = [sheet_name '.png'];
                 saveas(gcf, fullfile(graph_path, graph_name));
             end
-            %TODO create bar graphs
-        elseif contains(sheet_name, '_Lin')
+        elseif contains(sheet_name, '_Line')
             figure('visible','on');
             if contains(sheet_name, 'Performance')
                 %% Extract relevant variables
@@ -350,13 +392,15 @@ function [] = create_graphs()
                 xlabel('Day');
                 axis tight;
                 yticks([y_global_min 0 y_global_max]);
+                axis_limits = [axis_limits; sheet_name, {y_global_min}, {0}, {y_global_max}];
                 %% Legend
-                lg = legend('Learning','Non-learning','Control', 'Early', 'Late');
+                lg = legend('Learning','Non-learning','Control');
                 legend('boxoff');
                 lg.Location = 'BestOutside';
                 lg.Orientation = 'Horizontal';
 
                 title('Offline Performance');
+                ytickformat('%.2f')
                 graph_name = [sheet_name '.png'];
                 saveas(gcf, fullfile(graph_path, graph_name));
                 
@@ -405,7 +449,6 @@ function [] = create_graphs()
                 % plot(non_learning_mean, 'Color', 'm');
                 % title(sheet_name);
             elseif contains(sheet_name, 'Timng')
-                %TODO special indexing
                 %% Extract relevant variables
                 meanCol=4; % column in spreadsheet where "Mean" text located
                 measureCol=6; % column in spreadsheet where values to be plotted located
@@ -430,7 +473,6 @@ function [] = create_graphs()
                 standardErrors=[raw{[standardErrorCell{:}],measureCol}]';
 
                 % compile into table for processing 
-                fprintf('%d %d %d %d\n', length(days), length(animalTypes), length(means), length(standardErrors));
                 indirect_means = means(1:52);
                 indirect_errors = standardErrors(1:52);
                 direct_means = means((end-51):end);
@@ -477,13 +519,15 @@ function [] = create_graphs()
 
                 axis tight;
                 yticks([y_global_min y_midpoint y_global_max]);
+                axis_limits = [axis_limits; sheet_name, {y_global_min}, {y_midpoint}, {y_global_max}];
                 %% Legend
-                lg = legend('Timing','Count', 'Early', 'Late');
+                lg = legend('Timing','Count');
                 legend('boxoff');
                 lg.Location = 'BestOutside';
                 lg.Orientation = 'Horizontal';
 
                 title(['DIRECT ' sheet_name]);
+                ytickformat('%.2f')
                 graph_name = ['DIRECT_' sheet_name '.png'];
                 saveas(gcf, fullfile(graph_path, graph_name));
 
@@ -506,7 +550,7 @@ function [] = create_graphs()
                 close
                 figure
                 hold on;
-                transparency=0.1; % transparency of background
+                transparency=0.2; % transparency of background
                 plot(timing_x, timing_y, 'Color', orange, 'LineWidth', 4);
                 plot(count_x, count_y, 'Color', burgandy, 'LineWidth', 4);
                 [l,p] = boundedline(timing_x, timing_y, timing_e,...
@@ -522,16 +566,99 @@ function [] = create_graphs()
 
                 axis tight;
                 yticks([y_global_min y_midpoint y_global_max]);
+                axis_limits = [axis_limits; sheet_name, {y_global_min}, {y_midpoint}, {y_global_max}];
                 %% Legend
-                lg = legend('Timing','Count', 'Early', 'Late');
+                lg = legend('Timing','Count');
                 legend('boxoff');
                 lg.Location = 'BestOutside';
                 lg.Orientation = 'Horizontal';
 
                 title(['INDIRECT ' sheet_name]);
+                ytickformat('%.2f')
                 graph_name = ['INDIRECT_' sheet_name '.png'];
                 saveas(gcf, fullfile(graph_path, graph_name));
+            elseif contains(sheet_name, 'SynRed')
+                %% Extract relevant variables
+                meanCol=3; % column in spreadsheet where "Mean" text located
+                measureCol=5; % column in spreadsheet where values to be plotted located
 
+                % day
+                days = repmat(([1:26]-1), [1,2])';
+                % days=sort(dayCell);
+
+                % mean values
+                meanCell=cellfun(@(x) strcmpi(x,'Mean'),raw(:,meanCol),...
+                'UniformOutput',false);
+                meanLogical=[meanCell{:}];
+                means=[raw{[meanCell{:}],measureCol}]';
+
+                % animal type (e.g. learning)
+                animalTypes = [repmat({'Indirect'}, [26,1]); repmat({'Direct'}, [26,1])];
+
+                % standard error
+                standardErrorCell=cellfun(@(x) strcmpi(x,'Std. Error of Mean'),raw(:,meanCol),...
+                'UniformOutput',false);
+                standardErrors=[raw{[standardErrorCell{:}],measureCol}]';
+
+                indirect_means = means(1:26);
+                indirect_errors = standardErrors(1:26);
+                direct_means = means((end-25):end);
+                direct_errors = standardErrors((end-25):end);
+                means = [indirect_means; direct_means];
+                standardErrors = [indirect_errors; direct_errors];
+
+                % compile into table for processing
+                outputTable=table(days,animalTypes,means,standardErrors);
+                open('outputTable');
+
+                %% Parse data by relevant group (e.g. learing, nonlearning, control)
+
+                % direct animals
+                direct_x=outputTable.days(strcmpi(outputTable.animalTypes,'Direct'));  % x-values used in plotting 
+                direct_y=outputTable.means(strcmpi(outputTable.animalTypes,'Direct')); % y-values used in plotting 
+                direct_e=outputTable.standardErrors(strcmpi(outputTable.animalTypes,'Direct')); % error bar-values used in plotting 
+
+                % non-learning animals
+                indirect_x=outputTable.days(strcmpi(outputTable.animalTypes,'Indirect')); % x-values used in plotting 
+                indirect_y=outputTable.means(strcmpi(outputTable.animalTypes,'Indirect')); % y-values used in plotting 
+                indirect_e=outputTable.standardErrors(strcmpi(outputTable.animalTypes,'Indirect')); % error bar-values used in plotting
+
+                y_global_min = min(outputTable.means - outputTable.standardErrors);
+                y_global_max = max(outputTable.means + outputTable.standardErrors);
+                y_midpoint = (y_global_max + y_global_min)/2;
+                %% Plot figure 
+                
+                % generate line with shading
+                close
+                figure
+                hold on;
+                plot(direct_x, direct_y, 'Color', 'r', 'LineWidth', 4);
+                plot(indirect_x, indirect_y, 'Color', 'b', 'LineWidth', 4);
+                transparency=0.2; % transparency of background
+                [l,p] = boundedline(direct_x, direct_y, direct_e, 'r',...
+                indirect_x, indirect_y, indirect_e, 'b', 'transparency', transparency);
+                
+                % figure properties 
+                innerlineWidth=4;  % width of mean line 
+                
+                % apply properties to all lines in figure 
+                for lineProperty=1:length(l)
+                    l(lineProperty).LineWidth=innerlineWidth;
+                end
+                
+                %% Legend
+                axis tight;
+                yticks([y_global_min 0 y_global_max]);
+                axis_limits = [axis_limits; sheet_name, {y_global_min}, {0}, {y_global_max}];
+                lg = legend('Direct','Indirect');
+                legend('boxoff');
+                lg.Location = 'BestOutside';
+                lg.Orientation = 'Horizontal';
+
+                title(sheet_name);
+                ytickformat('%.2f')
+                graph_name = [sheet_name '.png'];
+                saveas(gcf, fullfile(graph_path, graph_name));
             else
                 %% Extract relevant variables
                 meanCol=3; % column in spreadsheet where "Mean" text located
@@ -604,26 +731,32 @@ function [] = create_graphs()
                 %% Legend
                 axis tight;
                 yticks([y_global_min 0 y_global_max]);
-                lg = legend('Direct','Indirect','Control', 'Early', 'Late');
+                axis_limits = [axis_limits; sheet_name, {y_global_min}, {0}, {y_global_max}];
+                lg = legend('Direct','Indirect','Control');
                 legend('boxoff');
                 lg.Location = 'BestOutside';
                 lg.Orientation = 'Horizontal';
 
                 title(sheet_name);
+                ytickformat('%.2f')
                 graph_name = [sheet_name '.png'];
                 saveas(gcf, fullfile(graph_path, graph_name));
             end
         elseif contains(sheet_name, 'Correlation')
             if ~contains(sheet_name, 'Change')
                 scatter(data(:,2), data(:,1), 'k', 'filled');
+                hold on;
+                coefficents = polyfit(data(:,2), data(:,1), 1);
+                y_fit = polyval(coefficents, xlim);
+                plot(xlim, y_fit, 'r');
                 title(sheet_name);
+                hold off;
                 graph_name = [sheet_name '.png'];
                 saveas(gcf, fullfile(graph_path, graph_name));
             end
             %TODO find out what to do with the last 2 sheets in excel file
 
         else
-            
             continue;
         end
     end
