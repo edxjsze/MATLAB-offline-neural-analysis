@@ -42,7 +42,7 @@ frequency = Freq;
 if nargin>2
     
     % change directory to decoder folder to access functions
-    cd(varargin{1})
+    %cd(varargin{1})
     
     % generate complete path to file
     opened_file_name = [plxDir, '/', plxName];
