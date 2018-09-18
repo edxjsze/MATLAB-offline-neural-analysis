@@ -21,7 +21,7 @@ function plot3D(seq, xspec, varargin)
 % @ 2009 Byron Yu -- byronyu@stanford.edu
 
   dimsToPlot = 1:3;
-  nPlotMax   = 20;
+  nPlotMax   = 10;
   redTrials  = [];
   assignopts(who, varargin);
 
@@ -32,7 +32,7 @@ function plot3D(seq, xspec, varargin)
 
   f = figure;
   pos = get(gcf, 'position');
-  set(f, 'position', [pos(1) pos(2) 1.3*pos(3) 1.3*pos(4)]);
+%   set(f, 'position', [pos(1) pos(2) 1.3*pos(3) 1.3*pos(4)]);
   
   for n = 1:min(length(seq), nPlotMax)
     dat = seq(n).(xspec)(dimsToPlot,:);
@@ -59,8 +59,10 @@ function plot3D(seq, xspec, varargin)
     plot3(dat(1,end), dat(2,end), dat(3,end), 'o', 'linewidth', lw, 'MarkerFaceColor', currentColor, 'MarkerEdgeColor', currentColor);
 %     set(g, {'MarkerFaceColor'}, get(g, 'Color'));
   end
+% mean(dat(1,10), dat(2,10), dat(3,10))
+% mean(dat(10,end), dat(10,end), dat(10,end))
 
-  axis equal;
+%   axis equal;
   if isequal(xspec, 'xorth')
     str1 = sprintf('$$\\tilde{\\mathbf x}_{%d,:}$$', dimsToPlot(1));
     str2 = sprintf('$$\\tilde{\\mathbf x}_{%d,:}$$', dimsToPlot(2));
@@ -73,5 +75,6 @@ function plot3D(seq, xspec, varargin)
   xlabel(str1, 'interpreter', 'latex', 'fontsize', 24);
   ylabel(str2, 'interpreter', 'latex', 'fontsize', 24);
   zlabel(str3, 'interpreter', 'latex', 'fontsize', 24);
-  
-end
+  xLimits = get(gca, 'XLim');
+  yLimits = get(gca, 'YLim');
+  zLimits = get(gca, 'ZLim');

@@ -70,7 +70,8 @@ function twoStageEngine(seqTrain, seqTest, fname, varargin)
       kern(k).LL        = LL;
           
     elseif isequal(typ, 'pca')
-      [pcDirs, pcScores] = princomp(Y');
+      [pcDirs, pcScores, ~, ~, explained, ~] = pca(Y');
+      assignin("base", 'explained_pca', explained);
       
       kern(k).seqTrain = segmentByTrial(kern(k).seqTrain,... 
       pcScores(:,1:xDim)', 'xpost');  
