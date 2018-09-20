@@ -24,7 +24,7 @@
 %Functions needed that I will provide: 
 % plx_info, plx_ts, plx_event_chanmap,plx_event_ts, Eventspiketimes, graphPSTH, normcount
 
-clear
+%clear
 
 % With this you will need to select the .plx file that I send you, and it
 % will take the spike times and event times
@@ -131,7 +131,22 @@ for i = 1:32
     end
 end
 hemiSide = ' Both Hemispheres ';
-
+hemiCountOne = 0;
+hemiCountTwo = 0;
+for i = 1:16
+    for j = 2:5
+        if length(allts{j,i}) >=1
+            hemiCountOne = hemiCountOne + 1;
+        end
+    end
+end
+for i = 17:32
+    for j = 2:5
+        if length(allts{j,i}) >=1
+            hemiCountTwo = hemiCountTwo + 1;
+        end
+    end
+end
 % 
 % if hemisphere == 1
 %     % When plotting graphs label figures with specific figure name, NOT
@@ -472,7 +487,8 @@ uisave;
 % ===========================================
 %load('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\gpfa_v0203\gpfa_v0203\mat_sample\sample_dat');
 %load('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\ourData2'); % Our version of Data
-
+%Hemicount added in, not saved with previous data
+[hemiCountOne, hemiCountTwo] = hemicount(allts);
 % Results will be saved in mat_results/runXXX/, where XXX is runIdx.
 % Use a new runIdx for each dataset.
 
@@ -511,9 +527,8 @@ result = neuralTraj(runIdx, dat, 'method', method, 'xDim', xDim,...
 % NOTE: The importance of orthnormalization is described on 
 %       pp.621-622 of Yu et al., J Neurophysiol, 2009.
 
-% Original equation
+% Original equation- "normalize data"
 for train = 1:length(seqTrain)
-
     for normal = 1:length(seqTrain)
         seqTrain(normal).xorth = (seqTrain(normal).xorth)./ (max(abs(seqTrain(normal).xorth),[],2));
     end
@@ -537,7 +552,6 @@ event6_neural_traj = seqTrain((correct1 + correct2 + correct3 + 1):(correct1 + c
 
 % Plot & Save 3D graphs
 % plot3D(seqTrain, 'xorth', 'dimsToPlot', 1:3);
-
 % Event 1
 
 plot3D(event1_neural_traj, 'xorth', 'dimsToPlot', dimsToPlot1);
@@ -793,6 +807,25 @@ plotPredErrorVsKernSD(runIdx, xDim);
 %clc
 
 %% Functions
+function [hemiCountOne, hemiCountTwo] = hemicount(allts)
+hemiCountOne = 0;
+hemiCountTwo = 0;
+for i = 1:16
+    for j = 2:5
+        if length(allts{j,i}) >=1
+            hemiCountOne = hemiCountOne + 1;
+        end
+    end
+end
+for i = 17:32
+    for j = 2:5
+        if length(allts{j,i}) >=1
+            hemiCountTwo = hemiCountTwo + 1;
+        end
+    end
+end
+end
+
 %% Find Mean & Standard Deviation Start Tilt
 % EDIT code for whatever event is needed
 function [decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot, event3_neural_traj, xDim)
