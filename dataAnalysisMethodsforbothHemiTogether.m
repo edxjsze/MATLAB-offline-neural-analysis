@@ -473,6 +473,45 @@ while newTimeSlots < (columns)
     end
 end
 
+%%
+%Important test: Separate dat struct into hemis and by events before
+%running gpfa
+
+%Hemicount added in, not saved with previous data
+[hemiCountOne, hemiCountTwo] = hemicount(allts);
+
+for i = 1:length(dat)
+    dataright(i).spikes = dat(i).spikes(1:hemiCountOne,:);
+    dataleft(i).spikes = dat(i).spikes((hemiCountOne+1):end,:);
+end
+
+right_event1_neural_traj = [];
+right_event3_neural_traj = [];
+right_event4_neural_traj = [];
+right_event6_neural_traj = [];
+left_event1_neural_traj = [];
+left_event3_neural_traj = [];
+left_event4_neural_traj = [];
+left_event6_neural_traj = [];
+
+right_event1_neural_traj = dataright(1:correct1); % Event 1 correct trials
+
+right_event3_neural_traj = dataright((correct1 + 1):(correct1 + correct2)); % Event 3 correct trials
+
+right_event4_neural_traj = dataright((correct1 + correct2 + 1):(correct1 + correct2 + correct3)); % Event 4 correct trials
+
+right_event6_neural_traj = dataright((correct1 + correct2 + correct3 + 1):(correct1 + correct2 + correct3 + correct4)); % Event 6 correct trials
+
+left_event1_neural_traj = dataleft(1:correct1); % Event 1 correct trials
+
+left_event3_neural_traj = dataleft((correct1 + 1):(correct1 + correct2)); % Event 3 correct trials
+
+left_event4_neural_traj = dataleft((correct1 + correct2 + 1):(correct1 + correct2 + correct3)); % Event 4 correct trials
+
+left_event6_neural_traj = dataleft((correct1 + correct2 + correct3 + 1):(correct1 + correct2 + correct3 + correct4)); % Event 6 correct trials
+
+
+
 %% Save & Done
 % uisave('dat');
 uisave;
@@ -487,18 +526,17 @@ uisave;
 % ===========================================
 %load('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\gpfa_v0203\gpfa_v0203\mat_sample\sample_dat');
 %load('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\ourData2'); % Our version of Data
-%Hemicount added in, not saved with previous data
-[hemiCountOne, hemiCountTwo] = hemicount(allts);
+
 % Results will be saved in mat_results/runXXX/, where XXX is runIdx.
 % Use a new runIdx for each dataset.
 
 disp('*View Learning Animals Matlab Information.xlsx file to find Run Index Numbers*');
 runIdx = input('Enter Run Index Number: ');
-
-dimsToPlot1 = [1,2,3];
-dimsToPlot2 = [1,2,3];
-dimsToPlot3 = [1,2,3];
-dimsToPlot4 = [1,2,3];
+dimsToPlot = [1,2,3];
+% % dimsToPlot1 = [1,2,3];
+% % dimsToPlot2 = [1,2,3];
+% % dimsToPlot3 = [1,2,3];
+% % dimsToPlot4 = [1,2,3];
 % Select method to extraclcct neural trajectories:
 % 'gpfa' -- Gaussian-process factor analysis
 % 'fa'   -- Smooth and factor analysis
@@ -517,50 +555,22 @@ kernSD = 30;
 % NOTE: The optimal kernel width should be found using 
 %       cross-validation (Section 2) below.
 
-% Extract neural trajectories
-result = neuralTraj(runIdx, dat, 'method', method, 'xDim', xDim,... 
-                    'kernSDList', kernSD);
-% NOTE: This function does most of the heavy lifting.
-
-% Orthonormalize neural trajectories
-[estParams, seqTrain] = postprocess(result, 'kernSD', kernSD);
-% NOTE: The importance of orthnormalization is described on 
-%       pp.621-622 of Yu et al., J Neurophysiol, 2009.
-
-% Original equation- "normalize data"
-for train = 1:length(seqTrain)
-    for normal = 1:length(seqTrain)
-        seqTrain(normal).xorth = (seqTrain(normal).xorth)./ (max(abs(seqTrain(normal).xorth),[],2));
-    end
-end
-
 % Plot neural trajectories in 3D space
-
-event1_neural_traj = [];
-event3_neural_traj = [];
-event4_neural_traj = [];
-event6_neural_traj = [];
-
-event1_neural_traj = seqTrain(1:correct1); % Event 1 correct trials
-
-event3_neural_traj = seqTrain((correct1 + 1):(correct1 + correct2)); % Event 3 correct trials
-
-event4_neural_traj = seqTrain((correct1 + correct2 + 1):(correct1 + correct2 + correct3)); % Event 4 correct trials
-
-event6_neural_traj = seqTrain((correct1 + correct2 + correct3 + 1):(correct1 + correct2 + correct3 + correct4)); % Event 6 correct trials
 
 
 % Plot & Save 3D graphs
 % plot3D(seqTrain, 'xorth', 'dimsToPlot', 1:3);
-% Event 1
 
-plot3D(event1_neural_traj, 'xorth', 'dimsToPlot', dimsToPlot1);
+%% Event 1
+
+[seqTrain, runIdx] = gpfatoolbox(dat, runIdx);
+plot3D(seqTrain, 'xorth', 'dimsToPlot', dimsToPlot);
 legend({'Neural Trajectory', 'Start of Tilt', 'Decision Made', 'End of Tilt'},'TextColor', 'black');
 title(legend, 'Event 1');
 % COPY the below code & PASTE into whatever EVENT# you need to find clusters for
 hold on
 
-[decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot1, event1_neural_traj, xDim);
+[decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot, seqTrain, xDim);
 [decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3);
 surf(decisionClusterX, decisionClusterY, decisionClusterZ, 'DisplayName','Decision Made',...
     'FaceAlpha',0.5,...
@@ -579,19 +589,19 @@ hold off
 % End copying of code
 msg = '\nUse single or double quotes. \nWrite Description. \nExample: TNC(#)_Day(#)\nFigureName: ';
 figureName = input(msg);
-newFigureName = strcat(figureName, ' Dimensions-',num2str(dimsToPlot1), ', Event 1, ', hemiSide, '-',  method);
+newFigureName = strcat(figureName, ' Dimensions-',num2str(dimsToPlot), ', Event 1, ', hemiSide, '-',  method);
 set(gcf, 'Name', newFigureName, 'NumberTitle', 'off');
 savefig(newFigureName);
 
-% Event 3
+%% Event 3
 
-plot3D(event3_neural_traj, 'xorth', 'dimsToPlot', dimsToPlot2);
+plot3D(seqTrain, 'xorth', 'dimsToPlot', dimsToPlot);
 legend({'Neural Trajectory', 'Start of Tilt', 'Decision Made', 'End of Tilt'},'TextColor', 'black');
 title(legend, 'Event 3');
 
 % COPY the below code & PASTE into whatever EVENT# you need to find clusters for
 hold on
-[decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot2, event3_neural_traj, xDim);
+[decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot, seqTrain, xDim);
 [decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3);
 surf(decisionClusterX, decisionClusterY, decisionClusterZ, 'DisplayName','Decision Made',...
     'FaceAlpha',0.5,...
@@ -608,19 +618,19 @@ surf(endClusterX, endClusterY, endClusterZ, 'DisplayName','End Tilt',...
 hold off
 % End copying of code
 
-newFigureName = strcat(figureName, ' Dimensions-',num2str(dimsToPlot2), ', Event 3, ', hemiSide, '-',  method);
+newFigureName = strcat(figureName, ' Dimensions-',num2str(dimsToPlot), ', Event 3, ', hemiSide, '-',  method);
 set(gcf, 'Name', newFigureName, 'NumberTitle', 'off');
 savefig(newFigureName);
 
-% Event 4
+%% Event 4
 
-plot3D(event4_neural_traj, 'xorth', 'dimsToPlot', dimsToPlot3);
+plot3D(seqTrain, 'xorth', 'dimsToPlot', dimsToPlot);
 legend({'Neural Trajectory', 'Start of Tilt', 'Decision Made', 'End of Tilt'},'TextColor', 'black');
 title(legend, 'Event 4');
 
 % COPY the below code & PASTE into whatever EVENT# you need to find clusters for
 hold on
-[decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot3, event4_neural_traj, xDim);
+[decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot, seqTrain, xDim);
 [decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3);
 surf(decisionClusterX, decisionClusterY, decisionClusterZ, 'DisplayName','Decision Made',...
     'FaceAlpha',0.5,...
@@ -637,19 +647,19 @@ surf(endClusterX, endClusterY, endClusterZ, 'DisplayName','End Tilt',...
 hold off
 % End copying of code
 
-newFigureName = strcat(figureName, ' Dimensions-',num2str(dimsToPlot3), ', Event 4, ', hemiSide, '-',  method);
+newFigureName = strcat(figureName, ' Dimensions-',num2str(dimsToPlot), ', Event 4, ', hemiSide, '-',  method);
 set(gcf, 'Name', newFigureName, 'NumberTitle', 'off');
 savefig(newFigureName);
 
-% Event 6
+%% Event 6
 
-plot3D(event6_neural_traj, 'xorth', 'dimsToPlot', dimsToPlot4);
+plot3D(seqTrain, 'xorth', 'dimsToPlot', dimsToPlot);
 legend({'Neural Trajectory', 'Start of Tilt', 'Decision Made', 'End of Tilt'},'TextColor', 'black');
 title(legend, 'Event 6');
 
 % COPY the below code & PASTE into whatever EVENT# you need to find clusters for
 hold on
-[decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot4, event6_neural_traj, xDim);
+[decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot, seqTrain, xDim);
 [decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3);
 surf(decisionClusterX, decisionClusterY, decisionClusterZ, 'DisplayName','Decision Made',...
     'FaceAlpha',0.5,...
@@ -666,7 +676,7 @@ surf(endClusterX, endClusterY, endClusterZ, 'DisplayName','End Tilt',...
 hold off
 % End copying of code
 
-newFigureName = strcat(figureName, ' Dimensions-',num2str(dimsToPlot4), ', Event 6, ', hemiSide, '-', method);
+newFigureName = strcat(figureName, ' Dimensions-',num2str(dimsToPlot), ', Event 6, ', hemiSide, '-', method);
 set(gcf, 'Name', newFigureName, 'NumberTitle', 'off');
 savefig(newFigureName);
 
@@ -807,6 +817,49 @@ plotPredErrorVsKernSD(runIdx, xDim);
 %clc
 
 %% Functions
+function [seqTrain] = gpfatoolbox(dat, runIdx) 
+dimsToPlot = [1,2,3];
+% % dimsToPlot1 = [1,2,3];
+% % dimsToPlot2 = [1,2,3];
+% % dimsToPlot3 = [1,2,3];
+% % dimsToPlot4 = [1,2,3];
+% Select method to extraclcct neural trajectories:
+% 'gpfa' -- Gaussian-process factor analysis
+% 'fa'   -- Smooth and factor analysis
+% 'ppca' -- Smooth and probabilistic principal components analysis
+% 'pca'  -- Smooth and principal components analysis
+method = 'pca';
+
+% Select number of latent dimensions
+xDim = 6;
+% NOTE: The optimal dimensionality should be found using                                
+%       cross-validation (Section 2) below.
+
+% If using a two-stage method ('fa', 'ppca', or 'pca'), select
+% standard deviation (in msec) of Gaussian smoothing kernel.
+kernSD = 30;
+% NOTE: The optimal kernel width should be found using 
+%       cross-validation (Section 2) below.
+
+% Extract neural trajectories
+result = neuralTraj(runIdx, dat, 'method', method, 'xDim', xDim,... 
+                    'kernSDList', kernSD);
+% NOTE: This function does most of the heavy lifting.
+
+% Orthonormalize neural trajectories
+[estParams, seqTrain] = postprocess(result, 'kernSD', kernSD);
+% NOTE: The importance of orthnormalization is described on 
+%       pp.621-622 of Yu et al., J Neurophysiol, 2009.
+
+% Original equation- "normalize data"
+for train = 1:length(seqTrain)
+    for normal = 1:length(seqTrain)
+        seqTrain(normal).xorth = (seqTrain(normal).xorth)./ (max(abs(seqTrain(normal).xorth),[],2));
+    end
+end
+
+end
+%hemicounts to separate channels 1-16 and 17-32
 function [hemiCountOne, hemiCountTwo] = hemicount(allts)
 hemiCountOne = 0;
 hemiCountTwo = 0;
