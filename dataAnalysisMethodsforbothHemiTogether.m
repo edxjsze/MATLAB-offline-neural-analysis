@@ -481,6 +481,12 @@ uisave;
 
 % [file1,path1]=uigetfile('*.mat'); % Gets all table files
 % load([path1,file1])
+%% For use if doing day 1 and need to separate hemispheres
+% for i = 1:length(dat)
+%     dat(i).spikes = dat(i).spikes(1:30,:);
+% end
+
+
 
 %% ===========================================
 % 1) Basic extraction of neural trajectories
@@ -549,10 +555,15 @@ event4_neural_traj = seqTrain((correct1 + correct2 + 1):(correct1 + correct2 + c
 
 event6_neural_traj = seqTrain((correct1 + correct2 + correct3 + 1):(correct1 + correct2 + correct3 + correct4)); % Event 6 correct trials
 
+% event1_neural_traj_good = meansort(event1_neural_traj);
+% event3_neural_traj_good = meansort(event3_neural_traj);
+% event4_neural_traj_good = meansort(event4_neural_traj);
+% event6_neural_traj_good = meansort(event6_neural_traj);
+
 
 % Plot & Save 3D graphs
 % plot3D(seqTrain, 'xorth', 'dimsToPlot', 1:3);
-% Event 1
+%% Event 1
 
 plot3D(event1_neural_traj, 'xorth', 'dimsToPlot', dimsToPlot1);
 legend({'Neural Trajectory', 'Start of Tilt', 'Decision Made', 'End of Tilt'},'TextColor', 'black');
@@ -583,7 +594,7 @@ newFigureName = strcat(figureName, ' Dimensions-',num2str(dimsToPlot1), ', Event
 set(gcf, 'Name', newFigureName, 'NumberTitle', 'off');
 savefig(newFigureName);
 
-% Event 3
+%% Event 3
 
 plot3D(event3_neural_traj, 'xorth', 'dimsToPlot', dimsToPlot2);
 legend({'Neural Trajectory', 'Start of Tilt', 'Decision Made', 'End of Tilt'},'TextColor', 'black');
@@ -612,7 +623,7 @@ newFigureName = strcat(figureName, ' Dimensions-',num2str(dimsToPlot2), ', Event
 set(gcf, 'Name', newFigureName, 'NumberTitle', 'off');
 savefig(newFigureName);
 
-% Event 4
+%% Event 4
 
 plot3D(event4_neural_traj, 'xorth', 'dimsToPlot', dimsToPlot3);
 legend({'Neural Trajectory', 'Start of Tilt', 'Decision Made', 'End of Tilt'},'TextColor', 'black');
@@ -641,7 +652,7 @@ newFigureName = strcat(figureName, ' Dimensions-',num2str(dimsToPlot3), ', Event
 set(gcf, 'Name', newFigureName, 'NumberTitle', 'off');
 savefig(newFigureName);
 
-% Event 6
+%% Event 6
 
 plot3D(event6_neural_traj, 'xorth', 'dimsToPlot', dimsToPlot4);
 legend({'Neural Trajectory', 'Start of Tilt', 'Decision Made', 'End of Tilt'},'TextColor', 'black');
@@ -806,7 +817,42 @@ plotPredErrorVsKernSD(runIdx, xDim);
 %clear
 %clc
 
+%% test
+% [sortmatrixnew, sortmatrix, sortmean, sortsd, sortLI, sortUI] = meansort(event1_neural_traj);
+% disp('done')
+
+
 %% Functions
+
+%% Sortmatrix
+function [sortmatrixnew] = meansort(event_neural_traj)
+for i = 1:length(event_neural_traj)
+    sortmatrix(i,1) = i;
+    sortmatrix(i,2)=event_neural_traj(i).xorth(1,10);
+end
+sortmatrix = sortrows(sortmatrix,2);
+sortmean = mean(sortmatrix(:,2));
+sortsd = std(sortmatrix(:,2));
+sortLI = sortmean - sortsd/2;
+sortUI = sortmean + sortsd/2;
+
+for i = 1:length(sortmatrix)
+    if sortmatrix(i,2) > sortLI && sortmatrix(i,2) < sortUI
+        sortmatrixnew(i,:) = sortmatrix(i,:);
+    end
+end
+i = 1;
+while i < length(sortmatrixnew)
+    if sortmatrixnew(i,1) == 0
+        sortmatrixnew(i,:) = [];
+        fprintf('%.0f\n',i);
+    end
+    i = i + 1;
+end
+
+end
+
+%% Hemicounts
 function [hemiCountOne, hemiCountTwo] = hemicount(allts)
 hemiCountOne = 0;
 hemiCountTwo = 0;
@@ -827,7 +873,7 @@ end
 end
 
 %% Find Mean & Standard Deviation Start Tilt
-% EDIT code for whatever event is needed
+
 function [decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot, event3_neural_traj, xDim)
 
 
