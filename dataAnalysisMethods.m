@@ -29,10 +29,10 @@
 % clc
 % % With this you will need to select the .plx file that I send you, and it
 % % will take the spike times and event times
-% [file,path]=uigetfile('*.plx');
-% 
-% datafile = [path,file];
-% [tscounts, wfcounts, evcounts, slowcounts] = plx_info(datafile,1); 
+[file,path]=uigetfile('*.plx');
+
+datafile = [path,file];
+[tscounts, wfcounts, evcounts, slowcounts] = plx_info(datafile,1); 
 
 %%
     % Fixed: Problems with PRAC 03 day 23
@@ -40,165 +40,165 @@
     % may need to revisit if encountering unexpected problems.
     % 
     %
-% [nunits1, nchannels1] = size( tscounts ); 
-% allts = cell(nunits1, nchannels1);
-% for iunit = 0:nunits1-1   % starting with unit 0 (unsorted) 
-%     for ich = 1:nchannels1-1
-%         if ( tscounts( iunit+1 , ich+1 ) > 0 )
-%             % get the timestamps for this channel and unit 
-%             [nts, allts{iunit+1,ich}] = plx_ts(datafile, ich , iunit );
-%          end
-%     end
-% end
-% svStrobed=[];
-% svdummy=[];
-% % and finally the events
-% [u,nevchannels] = size( evcounts );  
-% if ( nevchannels > 0 ) 
-%     % need the event chanmap to make any sense of these
-%     [u,evchans] = plx_event_chanmap(datafile);
-% 	for iev = 1:nevchannels
-% 		if ( evcounts(iev) > 0 )
-%             evch = evchans(iev);
-%             if ( evch == 257 )
-% 				[nevs{iev}, tsevs{iev}, svStrobed] = plx_event_ts(datafile, evch); 
-% 			else
-% 				[nevs{iev}, tsevs{iev}, svdummy{iev}] = plx_event_ts(datafile, evch);
-%             end
-% 		end
-% 	end
-% end
+[nunits1, nchannels1] = size( tscounts ); 
+allts = cell(nunits1, nchannels1);
+for iunit = 0:nunits1-1   % starting with unit 0 (unsorted) 
+    for ich = 1:nchannels1-1
+        if ( tscounts( iunit+1 , ich+1 ) > 0 )
+            % get the timestamps for this channel and unit 
+            [nts, allts{iunit+1,ich}] = plx_ts(datafile, ich , iunit );
+         end
+    end
+end
+svStrobed=[];
+svdummy=[];
+% and finally the events
+[u,nevchannels] = size( evcounts );  
+if ( nevchannels > 0 ) 
+    % need the event chanmap to make any sense of these
+    [u,evchans] = plx_event_chanmap(datafile);
+	for iev = 1:nevchannels
+		if ( evcounts(iev) > 0 )
+            evch = evchans(iev);
+            if ( evch == 257 )
+				[nevs{iev}, tsevs{iev}, svStrobed] = plx_event_ts(datafile, evch); 
+			else
+				[nevs{iev}, tsevs{iev}, svdummy{iev}] = plx_event_ts(datafile, evch);
+            end
+		end
+	end
+end
 % % 
-% events=[];
-% j=0;
-% if length(svStrobed)>1
-%     events = tsevs{1,17};
-%     events = [svStrobed,events];
-% else
-%     for i=1:length(evcounts)
-%         if evcounts(i) >= 100
-%             [nevs{i}, tsevs{i}, svdummy] = plx_event_ts(datafile, i);
-%             j=j+1;
-%             eventsingle(1:evcounts(i),1)=j;
-%             events= [events;eventsingle,tsevs{i}];
-%             eventsingle=[];
-%         end
-%     end
-%     for i=1:length(events)
-%         if events(i,1)==2
-%             events(i,1)=3;
-%         elseif events(i,1)==3
-%             events(i,1)=4;
-%         elseif events(i,1)==4
-%             events(i,1)=6;
-%         end
-%     end
-% end
+events=[];
+j=0;
+if length(svStrobed)>1
+    events = tsevs{1,17};
+    events = [svStrobed,events];
+else
+    for i=1:length(evcounts)
+        if evcounts(i) >= 100
+            [nevs{i}, tsevs{i}, svdummy] = plx_event_ts(datafile, i);
+            j=j+1;
+            eventsingle(1:evcounts(i),1)=j;
+            events= [events;eventsingle,tsevs{i}];
+            eventsingle=[];
+        end
+    end
+    for i=1:length(events)
+        if events(i,1)==2
+            events(i,1)=3;
+        elseif events(i,1)==3
+            events(i,1)=4;
+        elseif events(i,1)==4
+            events(i,1)=6;
+        end
+    end
+end
 % 
-% %% Removes Doubles and Triples from events
-% i=1;
-% while i <= length(events)-1
-%     if abs(events(i,2)-events(i+1,2)) < 2
-%         events(i+1,:) = [];
-%     end
-%     i = i+1;
-% end
-% i=1;
-% while i <= length(events)-1
-%     if abs(events(i,2)-events(i+1,2)) < 2
-%         events(i+1,:) = [];
-%     end
-%     i = i+1;
-% end
-% i=1;
-% while i <= length(events)-1
-%     if abs(events(i,2)-events(i+1,2)) < 2
-%         events(i+1,:) = [];
-%     end
-%     i = i+1;
-% end
-% 
-% spk = [];
-% 
-% % Separate Right & Left Hemispheres
-% hemisphere = input('Choose Right(1) or Left(2) Hemisphere: ');
-% 
-% if hemisphere == 1
-%     
-%     % When plotting graphs label figures with specific figure name, NOT
-%     % just Figure(#)
-%     hemiSide = ' Right Hemisphere'; % Used to label Figure as 'Right Hemisphere'
-%     for i = 1:16
-%         for j = 2:5
-%             if length(allts{j,i}) >= 1 ;
-%                 spk = [spk,allts(j,i)];
-%             end
-%         end
-%     end
-% 
-% else 
-%     hemiSide = ' Left Hemisphere'; % Used to label Figure as 'Left Hemisphere'
-%     for i = 17:32
-%         for j = 2:5
-%             if length(allts{j,i}) >= 1 ;
-%                 spk = [spk,allts(j,i)];
-%             end
-%         end
-%     end
-% end
-% 
-% spiketimes=spk;
-% 
-% %%
-% %Organize Events into individual variables that hold all timestamps of a
-% %single event type
-% %For angle data, right is positive, left is negative
-% 
-% event1=[]; %Right Fast
-% event3=[]; %Right Slow
-% event4=[]; %Left  Fast
-% event6=[]; %Left  Slow
-% for i=1:length(events)
-%     if events(i,1)==1
-%         event1=[event1; events(i,2)];
-%     elseif events(i,1)==3
-%         event3=[event3; events(i,2)];
-%     elseif events(i,1)==4
-%         event4= [event4; events(i,2)];
-%     else
-%         event6= [event6; events(i,2)];
-%     end
-% end
+%% Removes Doubles and Triples from events
+i=1;
+while i <= length(events)-1
+    if abs(events(i,2)-events(i+1,2)) < 2
+        events(i+1,:) = [];
+    end
+    i = i+1;
+end
+i=1;
+while i <= length(events)-1
+    if abs(events(i,2)-events(i+1,2)) < 2
+        events(i+1,:) = [];
+    end
+    i = i+1;
+end
+i=1;
+while i <= length(events)-1
+    if abs(events(i,2)-events(i+1,2)) < 2
+        events(i+1,:) = [];
+    end
+    i = i+1;
+end
 
-% newspikes=[];
-% 
-% for i=1:length(spiketimes)
-%     for j=1:length(spiketimes{1,i})
-%     newspikes(i,j)=spiketimes{1,i}(j);
-%     end
-% end
+spk = [];
+
+%% Choosing a Hemisphere
+ Separate Right & Left Hemispheres
+hemisphere = input('Choose Right(1) or Left(2) Hemisphere: ');
+
+if hemisphere == 1
+    % When plotting graphs label figures with specific figure name, NOT
+    % just Figure(#)
+    hemiSide = ' Right Hemisphere'; % Used to label Figure as 'Right Hemisphere'
+    for i = 1:16
+        for j = 2:5
+            if length(allts{j,i}) >= 1 ;
+                spk = [spk,allts(j,i)];
+            end
+        end
+    end
+
+else 
+    hemiSide = ' Left Hemisphere'; % Used to label Figure as 'Left Hemisphere'
+    for i = 17:32
+        for j = 2:5
+            if length(allts{j,i}) >= 1 ;
+                spk = [spk,allts(j,i)];
+            end
+        end
+    end
+end
+
+spiketimes=spk;
+
+%%
+%Organize Events into individual variables that hold all timestamps of a
+%single event type
+%For angle data, right is positive, left is negative
+
+event1=[]; %Right Fast
+event3=[]; %Right Slow
+event4=[]; %Left  Fast
+event6=[]; %Left  Slow
+for i=1:length(events)
+    if events(i,1)==1
+        event1=[event1; events(i,2)];
+    elseif events(i,1)==3
+        event3=[event3; events(i,2)];
+    elseif events(i,1)==4
+        event4= [event4; events(i,2)];
+    else
+        event6= [event6; events(i,2)];
+    end
+end
+
+newspikes=[];
+
+for i=1:length(spiketimes)
+    for j=1:length(spiketimes{1,i})
+    newspikes(i,j)=spiketimes{1,i}(j);
+    end
+end
 % %% Bin is now 1 ms 
-% %bin size is 0.005 seconds (5ms)
-% %Using Goodneurons rn instead of spiketimes
-% dimensions=length(spiketimes);
-% bin = 0.001;
-% edge=0:bin:0.4;
-% 
-% % classifier bin size
-% bin_size=.001;  %seconds
-% 
-% % classifier window before time zero 
-% pre_time=-.2;   %seconds
-% 
-% % classifier window after time zero 
-% post_time=.2;   %seconds
-% 
-% %edge endpoints are extended to solve a problem using discretize.
-% 
-% 
-% %totalrelspikes is the (400 trials)x(Bins*Neurons) matrix which has each event trial for each
-% %neuron with data put into 100 bins (-0.2 : 0.2) seconds.
-% %Binned every 1 ms(see edge above)
+%bin size is 0.005 seconds (5ms)
+%Using Goodneurons rn instead of spiketimes
+dimensions=length(spiketimes);
+bin = 0.001;
+edge=0:bin:0.4;
+
+% classifier bin size
+bin_size=.001;  %seconds
+
+% classifier window before time zero 
+pre_time=-.2;   %seconds
+
+% classifier window after time zero 
+post_time=.2;   %seconds
+
+%edge endpoints are extended to solve a problem using discretize.
+
+
+%totalrelspikes is the (400 trials)x(Bins*Neurons) matrix which has each event trial for each
+%neuron with data put into 100 bins (-0.2 : 0.2) seconds.
+%Binned every 1 ms(see edge above)
 % 
 % % [relspikes1]= Eventspiketimes(event1, newspikes, edge);
 % % [relspikes3]= Eventspiketimes(event3, newspikes, edge);
@@ -886,8 +886,8 @@ title(legend, 'Event 1');
 % COPY the below code & PASTE into whatever EVENT# you need to find clusters for
 hold on
 
-[decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot1, event1_neural_traj, xDim);
-[decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3);
+[decisionMadeMeanFactor1Event1, decisionMadeMeanFactor2Event1, decisionMadeMeanFactor3Event1, decisionMadeSDFactor1Event1, decisionMadeSDFactor2Event1, decisionMadeSDFactor3Event1, endTiltMeanFactor1Event1, endTiltMeanFactor2Event1, endTiltMeanFactor3Event1, endTiltSDFactor1Event1, endTiltSDFactor2Event1, endTiltSDFactor3Event1] = ellipse_mean_sd(dimsToPlot1, event1_neural_traj, xDim);
+[decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1Event1, decisionMadeMeanFactor2Event1, decisionMadeMeanFactor3Event1, decisionMadeSDFactor1Event1, decisionMadeSDFactor2Event1, decisionMadeSDFactor3Event1);
 surf(decisionClusterX, decisionClusterY, decisionClusterZ, 'DisplayName','Decision Made',...
     'FaceAlpha',0.5,...
     'LineStyle','none',...
@@ -896,7 +896,7 @@ hold off
 
 hold on
 
-[endClusterX,endClusterY, endClusterZ] = ellipsoid(endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3);
+[endClusterX,endClusterY, endClusterZ] = ellipsoid(endTiltMeanFactor1Event1, endTiltMeanFactor2Event1, endTiltMeanFactor3Event1, endTiltSDFactor1Event1, endTiltSDFactor2Event1, endTiltSDFactor3Event1);
 surf(endClusterX, endClusterY, endClusterZ, 'DisplayName','End Tilt',...
     'FaceAlpha',0.5,...
     'LineStyle','none',...
@@ -917,8 +917,8 @@ title(legend, 'Event 3');
 
 % COPY the below code & PASTE into whatever EVENT# you need to find clusters for
 hold on
-[decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot2, event3_neural_traj, xDim);
-[decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3);
+[decisionMadeMeanFactor1Event3, decisionMadeMeanFactor2Event3, decisionMadeMeanFactor3Event3, decisionMadeSDFactor1Event3, decisionMadeSDFactor2Event3, decisionMadeSDFactor3Event3, endTiltMeanFactor1Event3, endTiltMeanFactor2Event3, endTiltMeanFactor3Event3, endTiltSDFactor1Event3, endTiltSDFactor2Event3, endTiltSDFactor3Event3] = ellipse_mean_sd(dimsToPlot2, event3_neural_traj, xDim);
+[decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1Event3, decisionMadeMeanFactor2Event3, decisionMadeMeanFactor3Event3, decisionMadeSDFactor1Event3, decisionMadeSDFactor2Event3, decisionMadeSDFactor3Event3);
 surf(decisionClusterX, decisionClusterY, decisionClusterZ, 'DisplayName','Decision Made',...
     'FaceAlpha',0.5,...
     'LineStyle','none',...
@@ -926,7 +926,7 @@ surf(decisionClusterX, decisionClusterY, decisionClusterZ, 'DisplayName','Decisi
 hold off
 
 hold on
-[endClusterX,endClusterY, endClusterZ] = ellipsoid(endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3);
+[endClusterX,endClusterY, endClusterZ] = ellipsoid(endTiltMeanFactor1Event3, endTiltMeanFactor2Event3, endTiltMeanFactor3Event3, endTiltSDFactor1Event3, endTiltSDFactor2Event3, endTiltSDFactor3Event3);
 surf(endClusterX, endClusterY, endClusterZ, 'DisplayName','End Tilt',...
     'FaceAlpha',0.5,...
     'LineStyle','none',...
@@ -946,8 +946,8 @@ title(legend, 'Event 4');
 
 % COPY the below code & PASTE into whatever EVENT# you need to find clusters for
 hold on
-[decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot3, event4_neural_traj, xDim);
-[decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3);
+[decisionMadeMeanFactor1Event4, decisionMadeMeanFactor2Event4, decisionMadeMeanFactor3Event4, decisionMadeSDFactor1Event4, decisionMadeSDFactor2Event4, decisionMadeSDFactor3Event4, endTiltMeanFactor1Event4, endTiltMeanFactor2Event4, endTiltMeanFactor3Event4, endTiltSDFactor1Event4, endTiltSDFactor2Event4, endTiltSDFactor3Event4] = ellipse_mean_sd(dimsToPlot3, event4_neural_traj, xDim);
+[decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1Event4, decisionMadeMeanFactor2Event4, decisionMadeMeanFactor3Event4, decisionMadeSDFactor1Event4, decisionMadeSDFactor2Event4, decisionMadeSDFactor3Event4);
 surf(decisionClusterX, decisionClusterY, decisionClusterZ, 'DisplayName','Decision Made',...
     'FaceAlpha',0.5,...
     'LineStyle','none',...
@@ -955,7 +955,7 @@ surf(decisionClusterX, decisionClusterY, decisionClusterZ, 'DisplayName','Decisi
 hold off
 
 hold on
-[endClusterX,endClusterY, endClusterZ] = ellipsoid(endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3);
+[endClusterX,endClusterY, endClusterZ] = ellipsoid(endTiltMeanFactor1Event4, endTiltMeanFactor2Event4, endTiltMeanFactor3Event4, endTiltSDFactor1Event4, endTiltSDFactor2Event4, endTiltSDFactor3Event4);
 surf(endClusterX, endClusterY, endClusterZ, 'DisplayName','End Tilt',...
     'FaceAlpha',0.5,...
     'LineStyle','none',...
@@ -975,8 +975,8 @@ title(legend, 'Event 6');
 
 % COPY the below code & PASTE into whatever EVENT# you need to find clusters for
 hold on
-[decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot4, event6_neural_traj, xDim);
-[decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3);
+[decisionMadeMeanFactor1Event6, decisionMadeMeanFactor2Event6, decisionMadeMeanFactor3Event6, decisionMadeSDFactor1Event6, decisionMadeSDFactor2Event6, decisionMadeSDFactor3Event6, endTiltMeanFactor1Event6, endTiltMeanFactor2Event6, endTiltMeanFactor3Event6, endTiltSDFactor1Event6, endTiltSDFactor2Event6, endTiltSDFactor3Event6] = ellipse_mean_sd(dimsToPlot4, event6_neural_traj, xDim);
+[decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1Event6, decisionMadeMeanFactor2Event6, decisionMadeMeanFactor3Event6, decisionMadeSDFactor1Event6, decisionMadeSDFactor2Event6, decisionMadeSDFactor3Event6);
 surf(decisionClusterX, decisionClusterY, decisionClusterZ, 'DisplayName','Decision Made',...
     'FaceAlpha',0.5,...
     'LineStyle','none',...
@@ -984,7 +984,7 @@ surf(decisionClusterX, decisionClusterY, decisionClusterZ, 'DisplayName','Decisi
 hold off
 
 hold on
-[endClusterX,endClusterY, endClusterZ] = ellipsoid(endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3);
+[endClusterX,endClusterY, endClusterZ] = ellipsoid(endTiltMeanFactor1Event6, endTiltMeanFactor2Event6, endTiltMeanFactor3Event6, endTiltSDFactor1Event6, endTiltSDFactor2Event6, endTiltSDFactor3Event6);
 surf(endClusterX, endClusterY, endClusterZ, 'DisplayName','End Tilt',...
     'FaceAlpha',0.5,...
     'LineStyle','none',...
