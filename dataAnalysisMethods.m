@@ -121,7 +121,7 @@ end
 spk = [];
 
 %% Choosing a Hemisphere
- Separate Right & Left Hemispheres
+% Separate Right & Left Hemispheres
 hemisphere = input('Choose Right(1) or Left(2) Hemisphere: ');
 
 if hemisphere == 1
@@ -188,10 +188,10 @@ edge=0:bin:0.4;
 bin_size=.001;  %seconds
 
 % classifier window before time zero 
-pre_time=-.2;   %seconds
+pre_time=0;   %seconds
 
 % classifier window after time zero 
-post_time=.2;   %seconds
+post_time=.4;   %seconds
 
 %edge endpoints are extended to solve a problem using discretize.
 
@@ -324,36 +324,36 @@ post_time=.2;   %seconds
 
 %% Choosing a Hemisphere
 % Separate Right & Left Hemispheres
-hemisphere = input('Choose Right(1) or Left(2) Hemisphere: ');
-
-if hemisphere == 1
-    % When plotting graphs label figures with specific figure name, NOT
-    % just Figure(#)
-    hemiSide = ' Right Hemisphere '; % Used to label Figure as 'Right Hemisphere'
-    for i = 1:16
-        for j = 2:5
-            if length(allts{j,i}) >= 1 ;
-                spk = [spk,allts(j,i)];
-            end
-        end
-    end
-
-else % hemisphere == 2
-    hemiSide = ' Left Hemisphere '; % Used to label Figure as 'Left Hemisphere'
-    for i = 17:32
-        for j = 2:5
-            if length(allts{j,i}) >= 1 ;
-                spk = [spk,allts(j,i)];
-            end
-        end
-    end
-end
-
-% for spike = 1:length(spk)
-%     spk{spike} = cell2mat(spk(spike)) * 1000;
+% hemisphere = input('Choose Right(1) or Left(2) Hemisphere: ');
+% 
+% if hemisphere == 1
+%     % When plotting graphs label figures with specific figure name, NOT
+%     % just Figure(#)
+%     hemiSide = ' Right Hemisphere '; % Used to label Figure as 'Right Hemisphere'
+%     for i = 1:16
+%         for j = 2:5
+%             if length(allts{j,i}) >= 1 ;
+%                 spk = [spk,allts(j,i)];
+%             end
+%         end
+%     end
+% 
+% else % hemisphere == 2
+%     hemiSide = ' Left Hemisphere '; % Used to label Figure as 'Left Hemisphere'
+%     for i = 17:32
+%         for j = 2:5
+%             if length(allts{j,i}) >= 1 ;
+%                 spk = [spk,allts(j,i)];
+%             end
+%         end
+%     end
 % end
-    
-spiketimes=spk;
+% 
+% % for spike = 1:length(spk)
+% %     spk{spike} = cell2mat(spk(spike)) * 1000;
+% % end
+%     
+% spiketimes=spk;
 
 %% Organize Events
 %Organize Events into individual variables that hold all timestamps of a
@@ -522,8 +522,10 @@ count4 = sum(relspikes6);
 %Added from other code PSTHclassifer_example_code_original.m
 % create PSTH object 
 % [file,path]=uigetfile('*.plx'); % Keep just commented out for faster
-[file_mat, path_mat] = uigetfile('*.mat');
-load([path_mat, file_mat]);
+
+%% Commented out these two lines since we will be running new days, not saved .mat files
+% [file_mat, path_mat] = uigetfile('*.mat');
+% load([path_mat, file_mat]);
 plxDir = path;
 plxName = file;
 
@@ -685,122 +687,122 @@ while newTimeSlots < (columns)
     uisave('dat');
     
     
-    %% Done
-    disp('done')
-    
-    % 7/11/2018
-    % Commented out below b/c it's unnecessary to call already saved file &
-    % path
-    % [file1,path1]=uigetfile('*.mat'); % Gets all table files
-    % load([path1,file1])
-    
-    %% ===========================================
-    % 1) Basic extraction of neural trajectories
-    % ===========================================
-    %load('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\gpfa_v0203\gpfa_v0203\mat_sample\sample_dat');
-    %load('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\ourData2'); % Our version of Data
-    
-    % Results will be saved in mat_results/runXXX/, where XXX is runIdx.
-    % Use a new runIdx for each dataset.
-    
-    % cd('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\gpfa_v0203\gpfa_v0203');
-    runIdx = input('Enter Run Index Number: ');
-    
-    % Select method to extraclcct neural trajectories:
-    % 'gpfa' -- Gaussian-process factor analysis
-    % 'fa'   -- Smooth and factor analysis
-    % 'ppca' -- Smooth and probabilistic principal components analysis
-    % 'pca'  -- Smooth and principal components analysis
-    method = 'gpfa';
-    
-    % Select number of latent dimensions
-    xDim = 8;
-    % NOTE: The optimal dimensionality should be found using
-    %       cross-validation (Section 2) below.
-    
-    % If using a two-stage method ('fa', 'ppca', or 'pca'), select
-    % standard deviation (in msec) of Gaussian smoothing kernel.
-    kernSD = 30;
-    % NOTE: The optimal kernel width should be found using
-    %       cross-validation (Section 2) below.
-    
-    % Extract neural trajectories
-    result = neuralTraj(runIdx, dat, 'method', method, 'xDim', xDim,...
-        'kernSDList', kernSD);
-    % NOTE: This function does most of the heavy lifting.
-    
-    % Orthonormalize neural trajectories
-    [estParams, seqTrain] = postprocess(result, 'kernSD', kernSD);
-    % NOTE: The importance of orthnormalization is described on
-    %       pp.621-622 of Yu et al., J Neurophysiol, 2009.
-    
-    % Plot neural trajectories in 3D space
-    
-    plot3D(seqTrain, 'xorth', 'dimsToPlot', 1:3);
-    % 7/11/2018
-    % Edited to name figures specific descriptive name
-    msg = '\nUse single or double quotes. \nWrite Description. \nExample: TNC(#)_Day(#)\nFigureName: ';
-    figureName = input(msg);
-    savefig(figureName);
-    
-    % 7/12/2018
-    % Specify Figure Title
-    newFigureName = strcat(figureName, hemiSide);
-    set(gcf, 'Name', newFigureName, 'NumberTitle', 'off');
-    
-    % uisave(savefig('figureName'));
-    
-    % uisave(gcf, {'figureName', 'hemiSide'});
-    
-    % uisave('gcf', 'newFigureName');
-    savefig(newFigureName);
-    
-    % NOTES:
-    % - This figure shows the time-evolution of neural population
-    %   activity on a single-trial basis.  Each trajectory is extracted from
-    %   the activity of all units on a single trial.
-    % - This particular example is based on multi-electrode recordings
-    %   in premotor and motor cortices within a 400 ms period starting 300 ms
-    %   before movement onset.  The extracted trajectories appear to
-    %   follow the same general path, but there are clear trial-to-trial
-    %   differences that can be related to the physical arm movement.
-    % - Analogous to Figure 8 in Yu et al., J Neurophysiol, 2009.
-    % WARNING:
-    % - If the optimal dimensionality (as assessed by cross-validation in
-    %   Section 2) is greater than 3, then this plot may mask important
-    %   features of the neural trajectories in the dimensions not plotted.
-    %   This motivates looking at the next plot, which shows all latent
-    %   dimensions.
-    
-    % Plot each dimension of neural trajectories versus time
-    plotEachDimVsTime(seqTrain, 'xorth', result.binWidth);
-    % NOTES:
-    % - These are the same neural trajectories as in the previous figure.
-    %   The advantage of this figure is that we can see all latent
-    %   dimensions (one per panel), not just three selected dimensions.
-    %   As with the previous figure, each trajectory is extracted from the
-    %   population activity on a single trial.  The activity of each unit
-    %   is some linear combination of each of the panels.  The panels are
-    %   ordered, starting with the dimension of greatest covariance
-    %   (in the case of 'gpfa' and 'fa') or variance (in the case of
-    %   'ppca' and 'pca').
-    % - From this figure, we can roughly estimate the optimal
-    %   dimensionality by counting the number of top dimensions that have
-    %   'meaningful' temporal structure.   In this example, the optimal
-    %   dimensionality appears to be about 5.  This can be assessed
-    %   quantitatively using cross-validation in Section 2.
-    % - Analogous to Figure 7 in Yu et al., J Neurophysiol, 2009.
-    
-    fprintf('\n');
-    fprintf('Basic extraction and plotting of neural trajectories is complete.\n');
-    fprintf('Press any key to start cross-validation...\n');
-    fprintf('[Depending on the dataset, this can take many minutes to hours.]\n');
-    disp(hemisphere)
-end
-
-%% Save & Done
-% uisave('dat');
- uisave;
+%%     %% Done
+%     disp('done')
+%     
+%     % 7/11/2018
+%     % Commented out below b/c it's unnecessary to call already saved file &
+%     % path
+%     % [file1,path1]=uigetfile('*.mat'); % Gets all table files
+%     % load([path1,file1])
+%     
+%     %% ===========================================
+%     % 1) Basic extraction of neural trajectories
+%     % ===========================================
+%     %load('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\gpfa_v0203\gpfa_v0203\mat_sample\sample_dat');
+%     %load('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\ourData2'); % Our version of Data
+%     
+%     % Results will be saved in mat_results/runXXX/, where XXX is runIdx.
+%     % Use a new runIdx for each dataset.
+%     
+%     % cd('C:\Users\Adrian & Gloria\Desktop\UC LEADS\Moxon Lab\gpfa_v0203\gpfa_v0203');
+%     runIdx = input('Enter Run Index Number: ');
+%     
+%     % Select method to extraclcct neural trajectories:
+%     % 'gpfa' -- Gaussian-process factor analysis
+%     % 'fa'   -- Smooth and factor analysis
+%     % 'ppca' -- Smooth and probabilistic principal components analysis
+%     % 'pca'  -- Smooth and principal components analysis
+%     method = 'gpfa';
+%     
+%     % Select number of latent dimensions
+%     xDim = 8;
+%     % NOTE: The optimal dimensionality should be found using
+%     %       cross-validation (Section 2) below.
+%     
+%     % If using a two-stage method ('fa', 'ppca', or 'pca'), select
+%     % standard deviation (in msec) of Gaussian smoothing kernel.
+%     kernSD = 30;
+%     % NOTE: The optimal kernel width should be found using
+%     %       cross-validation (Section 2) below.
+%     
+%     % Extract neural trajectories
+%     result = neuralTraj(runIdx, dat, 'method', method, 'xDim', xDim,...
+%         'kernSDList', kernSD);
+%     % NOTE: This function does most of the heavy lifting.
+%     
+%     % Orthonormalize neural trajectories
+%     [estParams, seqTrain] = postprocess(result, 'kernSD', kernSD);
+%     % NOTE: The importance of orthnormalization is described on
+%     %       pp.621-622 of Yu et al., J Neurophysiol, 2009.
+%     
+%     % Plot neural trajectories in 3D space
+%     
+%     plot3D(seqTrain, 'xorth', 'dimsToPlot', 1:3);
+%     % 7/11/2018
+%     % Edited to name figures specific descriptive name
+%     msg = '\nUse single or double quotes. \nWrite Description. \nExample: TNC(#)_Day(#)\nFigureName: ';
+%     figureName = input(msg);
+%     savefig(figureName);
+%     
+%     % 7/12/2018
+%     % Specify Figure Title
+%     newFigureName = strcat(figureName, hemiSide);
+%     set(gcf, 'Name', newFigureName, 'NumberTitle', 'off');
+%     
+%     % uisave(savefig('figureName'));
+%     
+%     % uisave(gcf, {'figureName', 'hemiSide'});
+%     
+%     % uisave('gcf', 'newFigureName');
+%     savefig(newFigureName);
+%     
+%     % NOTES:
+%     % - This figure shows the time-evolution of neural population
+%     %   activity on a single-trial basis.  Each trajectory is extracted from
+%     %   the activity of all units on a single trial.
+%     % - This particular example is based on multi-electrode recordings
+%     %   in premotor and motor cortices within a 400 ms period starting 300 ms
+%     %   before movement onset.  The extracted trajectories appear to
+%     %   follow the same general path, but there are clear trial-to-trial
+%     %   differences that can be related to the physical arm movement.
+%     % - Analogous to Figure 8 in Yu et al., J Neurophysiol, 2009.
+%     % WARNING:
+%     % - If the optimal dimensionality (as assessed by cross-validation in
+%     %   Section 2) is greater than 3, then this plot may mask important
+%     %   features of the neural trajectories in the dimensions not plotted.
+%     %   This motivates looking at the next plot, which shows all latent
+%     %   dimensions.
+%     
+%     % Plot each dimension of neural trajectories versus time
+%     plotEachDimVsTime(seqTrain, 'xorth', result.binWidth);
+%     % NOTES:
+%     % - These are the same neural trajectories as in the previous figure.
+%     %   The advantage of this figure is that we can see all latent
+%     %   dimensions (one per panel), not just three selected dimensions.
+%     %   As with the previous figure, each trajectory is extracted from the
+%     %   population activity on a single trial.  The activity of each unit
+%     %   is some linear combination of each of the panels.  The panels are
+%     %   ordered, starting with the dimension of greatest covariance
+%     %   (in the case of 'gpfa' and 'fa') or variance (in the case of
+%     %   'ppca' and 'pca').
+%     % - From this figure, we can roughly estimate the optimal
+%     %   dimensionality by counting the number of top dimensions that have
+%     %   'meaningful' temporal structure.   In this example, the optimal
+%     %   dimensionality appears to be about 5.  This can be assessed
+%     %   quantitatively using cross-validation in Section 2.
+%     % - Analogous to Figure 7 in Yu et al., J Neurophysiol, 2009.
+%     
+%     fprintf('\n');
+%     fprintf('Basic extraction and plotting of neural trajectories is complete.\n');
+%     fprintf('Press any key to start cross-validation...\n');
+%     fprintf('[Depending on the dataset, this can take many minutes to hours.]\n');
+%     disp(hemisphere)
+% end
+% 
+% %% Save & Done
+% % uisave('dat');
+%  uisave;
 % 
 % disp('done')
 
