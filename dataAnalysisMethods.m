@@ -683,8 +683,8 @@ while newTimeSlots < (columns)
             n = n + 1;
         end
     end
-    
-    uisave('dat');
+end
+    %uisave('dat');
     
     
 %%     %% Done
@@ -998,6 +998,18 @@ newFigureName = strcat(figureName, ' Dimensions-',num2str(dimsToPlot4), ', Event
 set(gcf, 'Name', newFigureName, 'NumberTitle', 'off');
 savefig(newFigureName);
 
+uisave({'dat','decisionMadeMeanFactor1Event1', 'decisionMadeMeanFactor2Event1', 'decisionMadeMeanFactor3Event1',...
+    'decisionMadeSDFactor1Event1', 'decisionMadeSDFactor2Event1', 'decisionMadeSDFactor3Event1', 'endTiltMeanFactor1Event1',...
+    'endTiltMeanFactor2Event1', 'endTiltMeanFactor3Event1', 'endTiltSDFactor1Event1', 'endTiltSDFactor2Event1', 'endTiltSDFactor3Event1'...
+    'decisionMadeMeanFactor1Event3', 'decisionMadeMeanFactor2Event3', 'decisionMadeMeanFactor3Event3',...
+    'decisionMadeSDFactor1Event3', 'decisionMadeSDFactor2Event3', 'decisionMadeSDFactor3Event3', 'endTiltMeanFactor1Event3',...
+    'endTiltMeanFactor2Event3', 'endTiltMeanFactor3Event3', 'endTiltSDFactor1Event3', 'endTiltSDFactor2Event3', 'endTiltSDFactor3Event3'...
+    'decisionMadeMeanFactor1Event4', 'decisionMadeMeanFactor2Event4', 'decisionMadeMeanFactor3Event4',...
+    'decisionMadeSDFactor1Event4', 'decisionMadeSDFactor2Event4', 'decisionMadeSDFactor3Event4', 'endTiltMeanFactor1Event4',...
+    'endTiltMeanFactor2Event4', 'endTiltMeanFactor3Event4', 'endTiltSDFactor1Event4', 'endTiltSDFactor2Event4', 'endTiltSDFactor3Event4'...
+    'decisionMadeMeanFactor1Event6', 'decisionMadeMeanFactor2Event6', 'decisionMadeMeanFactor3Event6',...
+    'decisionMadeSDFactor1Event6', 'decisionMadeSDFactor2Event6', 'decisionMadeSDFactor3Event6', 'endTiltMeanFactor1Event6',...
+    'endTiltMeanFactor2Event6', 'endTiltMeanFactor3Event6', 'endTiltSDFactor1Event6', 'endTiltSDFactor2Event6', 'endTiltSDFactor3Event6'})
 %cleanup
 % close all
 % clear
@@ -1132,13 +1144,11 @@ savefig(newFigureName);
 % % - In this particular example, the optimal standard deviation of a
 % %   Gaussian smoothing kernel with FA is 30 ms.
 % % - Analogous to Figures 5B and 5C in Yu et al., J Neurophysiol, 2009.
+
 %% Functions
 %% Find Mean & Standard Deviation Start Tilt
 % EDIT code for whatever event is needed
 function [decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot, event3_neural_traj, xDim)
-
-
-
 for newTrainEvent3Factor1 = 1:length(event3_neural_traj)
     startTiltEvent3Factor1(newTrainEvent3Factor1) = event3_neural_traj(newTrainEvent3Factor1).xorth(dimsToPlot(1),1);
 end
