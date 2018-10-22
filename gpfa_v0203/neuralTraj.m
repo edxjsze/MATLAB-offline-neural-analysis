@@ -43,12 +43,12 @@ function result = neuralTraj(runIdx, dat, varargin)
     mkdir('mat_results');
   end
   % Make a directory for this runIdx if it doesn't already exist
-  runDir = sprintf('mat_results/run%03d', runIdx);
+  runDir = char(strcat('mat_results/run', runIdx));
   if isdir(runDir)
     fprintf('Using existing directory %s...\n', runDir);
   else
     fprintf('Making directory %s...\n', runDir);
-    mkdir(runDir);
+    mkdir(char(runDir));
   end
 
   % Obtain binned spike counts
