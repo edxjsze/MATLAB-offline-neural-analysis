@@ -1008,10 +1008,10 @@ ellipsoid_data = [startTiltMeanFactor1Event1, startTiltMeanFactor2Event1, startT
                   startTiltMeanFactor1Event3, startTiltMeanFactor2Event3, startTiltMeanFactor3Event3, decisionMadeMeanFactor1Event3, decisionMadeMeanFactor2Event3, decisionMadeMeanFactor3Event3, endTiltMeanFactor1Event3, endTiltMeanFactor2Event3, endTiltMeanFactor3Event3, startTiltSDFactor1Event3, startTiltSDFactor2Event3, startTiltSDFactor3Event3, decisionMadeSDFactor1Event3, decisionMadeSDFactor2Event3, decisionMadeSDFactor3Event3, endTiltSDFactor1Event3, endTiltSDFactor2Event3, endTiltSDFactor3Event3;...
                   startTiltMeanFactor1Event4, startTiltMeanFactor2Event4, startTiltMeanFactor3Event4, decisionMadeMeanFactor1Event4, decisionMadeMeanFactor2Event4, decisionMadeMeanFactor3Event4, endTiltMeanFactor1Event4, endTiltMeanFactor2Event4, endTiltMeanFactor3Event4, startTiltSDFactor1Event4, startTiltSDFactor2Event4, startTiltSDFactor3Event4, decisionMadeSDFactor1Event4, decisionMadeSDFactor2Event4, decisionMadeSDFactor3Event4, endTiltSDFactor1Event4, endTiltSDFactor2Event4, endTiltSDFactor3Event4;...
                   startTiltMeanFactor1Event6, startTiltMeanFactor2Event6, startTiltMeanFactor3Event6, decisionMadeMeanFactor1Event6, decisionMadeMeanFactor2Event6, decisionMadeMeanFactor3Event6, endTiltMeanFactor1Event6, endTiltMeanFactor2Event6, endTiltMeanFactor3Event6, startTiltSDFactor1Event6, startTiltSDFactor2Event6, startTiltSDFactor3Event6, decisionMadeSDFactor1Event6, decisionMadeSDFactor2Event6, decisionMadeSDFactor3Event6, endTiltSDFactor1Event6, endTiltSDFactor2Event6, endTiltSDFactor3Event6];
-
-
+newfile = strcat(file,".mat");
+save(newfile,'dat','ellipsoid_data');
 %cleanup
-% close all
+% close 
 % clear
 % clc
 
