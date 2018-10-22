@@ -800,7 +800,7 @@ end
 
 %% Save & Done
 % uisave('dat');
- uisave;
+% uisave;
 % 
 % disp('done')
 
@@ -886,7 +886,7 @@ title(legend, 'Event 1');
 % COPY the below code & PASTE into whatever EVENT# you need to find clusters for
 hold on
 
-[decisionMadeMeanFactor1Event1, decisionMadeMeanFactor2Event1, decisionMadeMeanFactor3Event1, decisionMadeSDFactor1Event1, decisionMadeSDFactor2Event1, decisionMadeSDFactor3Event1, endTiltMeanFactor1Event1, endTiltMeanFactor2Event1, endTiltMeanFactor3Event1, endTiltSDFactor1Event1, endTiltSDFactor2Event1, endTiltSDFactor3Event1] = ellipse_mean_sd(dimsToPlot1, event1_neural_traj, xDim);
+[startTiltMeanFactor1Event1, startTiltMeanFactor2Event1, startTiltMeanFactor3Event1, startTiltSDFactor1Event1, startTiltSDFactor2Event1, startTiltSDFactor3Event1, decisionMadeMeanFactor1Event1, decisionMadeMeanFactor2Event1, decisionMadeMeanFactor3Event1, decisionMadeSDFactor1Event1, decisionMadeSDFactor2Event1, decisionMadeSDFactor3Event1, endTiltMeanFactor1Event1, endTiltMeanFactor2Event1, endTiltMeanFactor3Event1, endTiltSDFactor1Event1, endTiltSDFactor2Event1, endTiltSDFactor3Event1] = ellipse_mean_sd(dimsToPlot1, event1_neural_traj, xDim);
 [decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1Event1, decisionMadeMeanFactor2Event1, decisionMadeMeanFactor3Event1, decisionMadeSDFactor1Event1, decisionMadeSDFactor2Event1, decisionMadeSDFactor3Event1);
 surf(decisionClusterX, decisionClusterY, decisionClusterZ, 'DisplayName','Decision Made',...
     'FaceAlpha',0.5,...
@@ -917,7 +917,7 @@ title(legend, 'Event 3');
 
 % COPY the below code & PASTE into whatever EVENT# you need to find clusters for
 hold on
-[decisionMadeMeanFactor1Event3, decisionMadeMeanFactor2Event3, decisionMadeMeanFactor3Event3, decisionMadeSDFactor1Event3, decisionMadeSDFactor2Event3, decisionMadeSDFactor3Event3, endTiltMeanFactor1Event3, endTiltMeanFactor2Event3, endTiltMeanFactor3Event3, endTiltSDFactor1Event3, endTiltSDFactor2Event3, endTiltSDFactor3Event3] = ellipse_mean_sd(dimsToPlot2, event3_neural_traj, xDim);
+[startTiltMeanFactor1Event3, startTiltMeanFactor2Event3, startTiltMeanFactor3Event3, startTiltSDFactor1Event3, startTiltSDFactor2Event3, startTiltSDFactor3Event3, decisionMadeMeanFactor1Event3, decisionMadeMeanFactor2Event3, decisionMadeMeanFactor3Event3, decisionMadeSDFactor1Event3, decisionMadeSDFactor2Event3, decisionMadeSDFactor3Event3, endTiltMeanFactor1Event3, endTiltMeanFactor2Event3, endTiltMeanFactor3Event3, endTiltSDFactor1Event3, endTiltSDFactor2Event3, endTiltSDFactor3Event3] = ellipse_mean_sd(dimsToPlot2, event3_neural_traj, xDim);
 [decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1Event3, decisionMadeMeanFactor2Event3, decisionMadeMeanFactor3Event3, decisionMadeSDFactor1Event3, decisionMadeSDFactor2Event3, decisionMadeSDFactor3Event3);
 surf(decisionClusterX, decisionClusterY, decisionClusterZ, 'DisplayName','Decision Made',...
     'FaceAlpha',0.5,...
@@ -946,7 +946,7 @@ title(legend, 'Event 4');
 
 % COPY the below code & PASTE into whatever EVENT# you need to find clusters for
 hold on
-[decisionMadeMeanFactor1Event4, decisionMadeMeanFactor2Event4, decisionMadeMeanFactor3Event4, decisionMadeSDFactor1Event4, decisionMadeSDFactor2Event4, decisionMadeSDFactor3Event4, endTiltMeanFactor1Event4, endTiltMeanFactor2Event4, endTiltMeanFactor3Event4, endTiltSDFactor1Event4, endTiltSDFactor2Event4, endTiltSDFactor3Event4] = ellipse_mean_sd(dimsToPlot3, event4_neural_traj, xDim);
+[startTiltMeanFactor1Event4, startTiltMeanFactor2Event4, startTiltMeanFactor3Event4, startTiltSDFactor1Event4, startTiltSDFactor2Event4, startTiltSDFactor3Event4, decisionMadeMeanFactor1Event4, decisionMadeMeanFactor2Event4, decisionMadeMeanFactor3Event4, decisionMadeSDFactor1Event4, decisionMadeSDFactor2Event4, decisionMadeSDFactor3Event4, endTiltMeanFactor1Event4, endTiltMeanFactor2Event4, endTiltMeanFactor3Event4, endTiltSDFactor1Event4, endTiltSDFactor2Event4, endTiltSDFactor3Event4] = ellipse_mean_sd(dimsToPlot3, event4_neural_traj, xDim);
 [decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1Event4, decisionMadeMeanFactor2Event4, decisionMadeMeanFactor3Event4, decisionMadeSDFactor1Event4, decisionMadeSDFactor2Event4, decisionMadeSDFactor3Event4);
 surf(decisionClusterX, decisionClusterY, decisionClusterZ, 'DisplayName','Decision Made',...
     'FaceAlpha',0.5,...
@@ -975,7 +975,7 @@ title(legend, 'Event 6');
 
 % COPY the below code & PASTE into whatever EVENT# you need to find clusters for
 hold on
-[decisionMadeMeanFactor1Event6, decisionMadeMeanFactor2Event6, decisionMadeMeanFactor3Event6, decisionMadeSDFactor1Event6, decisionMadeSDFactor2Event6, decisionMadeSDFactor3Event6, endTiltMeanFactor1Event6, endTiltMeanFactor2Event6, endTiltMeanFactor3Event6, endTiltSDFactor1Event6, endTiltSDFactor2Event6, endTiltSDFactor3Event6] = ellipse_mean_sd(dimsToPlot4, event6_neural_traj, xDim);
+[startTiltMeanFactor1Event6, startTiltMeanFactor2Event6, startTiltMeanFactor3Event6, startTiltSDFactor1Event6, startTiltSDFactor2Event6, startTiltSDFactor3Event6, decisionMadeMeanFactor1Event6, decisionMadeMeanFactor2Event6, decisionMadeMeanFactor3Event6, decisionMadeSDFactor1Event6, decisionMadeSDFactor2Event6, decisionMadeSDFactor3Event6, endTiltMeanFactor1Event6, endTiltMeanFactor2Event6, endTiltMeanFactor3Event6, endTiltSDFactor1Event6, endTiltSDFactor2Event6, endTiltSDFactor3Event6] = ellipse_mean_sd(dimsToPlot4, event6_neural_traj, xDim);
 [decisionClusterX, decisionClusterY, decisionClusterZ] = ellipsoid(decisionMadeMeanFactor1Event6, decisionMadeMeanFactor2Event6, decisionMadeMeanFactor3Event6, decisionMadeSDFactor1Event6, decisionMadeSDFactor2Event6, decisionMadeSDFactor3Event6);
 surf(decisionClusterX, decisionClusterY, decisionClusterZ, 'DisplayName','Decision Made',...
     'FaceAlpha',0.5,...
@@ -995,6 +995,11 @@ hold off
 newFigureName = strcat(figureName, ' Dimensions-',num2str(dimsToPlot4), ', Event 6, ', hemiSide, '-', method);
 set(gcf, 'Name', newFigureName, 'NumberTitle', 'off');
 savefig(newFigureName);
+
+ellipsoid_data = [startTiltMeanFactor1Event1, startTiltMeanFactor2Event1, startTiltMeanFactor3Event1, decisionMadeMeanFactor1Event1, decisionMadeMeanFactor2Event1, decisionMadeMeanFactor3Event1, endTiltMeanFactor1Event1, endTiltMeanFactor2Event1, endTiltMeanFactor3Event1, startTiltSDFactor1Event1, startTiltSDFactor2Event1, startTiltSDFactor3Event1, decisionMadeSDFactor1Event1, decisionMadeSDFactor2Event1, decisionMadeSDFactor3Event1, endTiltSDFactor1Event1, endTiltSDFactor2Event1, endTiltSDFactor3Event1;...
+                  startTiltMeanFactor1Event3, startTiltMeanFactor2Event3, startTiltMeanFactor3Event3, decisionMadeMeanFactor1Event3, decisionMadeMeanFactor2Event3, decisionMadeMeanFactor3Event3, endTiltMeanFactor1Event3, endTiltMeanFactor2Event3, endTiltMeanFactor3Event3, startTiltSDFactor1Event3, startTiltSDFactor2Event3, startTiltSDFactor3Event3, decisionMadeSDFactor1Event3, decisionMadeSDFactor2Event3, decisionMadeSDFactor3Event3, endTiltSDFactor1Event3, endTiltSDFactor2Event3, endTiltSDFactor3Event3;...
+                  startTiltMeanFactor1Event4, startTiltMeanFactor2Event4, startTiltMeanFactor3Event4, decisionMadeMeanFactor1Event4, decisionMadeMeanFactor2Event4, decisionMadeMeanFactor3Event4, endTiltMeanFactor1Event4, endTiltMeanFactor2Event4, endTiltMeanFactor3Event4, startTiltSDFactor1Event4, startTiltSDFactor2Event4, startTiltSDFactor3Event4, decisionMadeSDFactor1Event4, decisionMadeSDFactor2Event4, decisionMadeSDFactor3Event4, endTiltSDFactor1Event4, endTiltSDFactor2Event4, endTiltSDFactor3Event4;...
+                  startTiltMeanFactor1Event6, startTiltMeanFactor2Event6, startTiltMeanFactor3Event6, decisionMadeMeanFactor1Event6, decisionMadeMeanFactor2Event6, decisionMadeMeanFactor3Event6, endTiltMeanFactor1Event6, endTiltMeanFactor2Event6, endTiltMeanFactor3Event6, startTiltSDFactor1Event6, startTiltSDFactor2Event6, startTiltSDFactor3Event6, decisionMadeSDFactor1Event6, decisionMadeSDFactor2Event6, decisionMadeSDFactor3Event6, endTiltSDFactor1Event6, endTiltSDFactor2Event6, endTiltSDFactor3Event6];
 
 %cleanup
 % close all
@@ -1133,7 +1138,7 @@ savefig(newFigureName);
 %% Functions
 %% Find Mean & Standard Deviation Start Tilt
 % EDIT code for whatever event is needed
-function [decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot, event3_neural_traj, xDim)
+function [startTiltMeanFactor1, startTiltMeanFactor2, startTiltMeanFactor3, startTiltSDFactor1, startTiltSDFactor2, startTiltSDFactor3, decisionMadeMeanFactor1, decisionMadeMeanFactor2, decisionMadeMeanFactor3, decisionMadeSDFactor1, decisionMadeSDFactor2, decisionMadeSDFactor3, endTiltMeanFactor1, endTiltMeanFactor2, endTiltMeanFactor3, endTiltSDFactor1, endTiltSDFactor2, endTiltSDFactor3] = ellipse_mean_sd(dimsToPlot, event3_neural_traj, xDim)
 
 
 
