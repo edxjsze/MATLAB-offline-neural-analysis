@@ -997,6 +997,7 @@ if length(animal_list) > 2
             newfile = strcat(file,".mat");
             save(newfile,'dat','ellipsoid_data');
             toc
+            close all
         end
     end
 end
