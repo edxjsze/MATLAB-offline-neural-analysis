@@ -6,13 +6,13 @@
 learning = ['PRAC03', 'TNC16', 'RAVI19', 'RAVI20', 'RAVI019', 'RAVI020'];
 non_learning = ['LC02', 'TNC06', 'TNC12', 'TNC25'];
 control = ['TNC01', 'TNC03', 'TNC04', 'TNC14'];
-right_direct = ['RAVI19', 'PRAC03', 'LC02', 'TNC12'];
-left_direct = ['RAVI20', 'TNC16', 'TNC25', 'TNC06''.csv'];
+right_direct = ['RAVI019', 'PRAC03', 'LC02', 'TNC12'];
+left_direct = ['RAVI020', 'TNC16', 'TNC25', 'TNC06'];
 %trial_range = [1,100]; %Work in progress
 
 % Include Animal folder names in ignored_animals if you do not want to run
 % them
-ignored_animals = [];
+ignored_animals = ['LC02', 'TNC01', 'TNC03','TNC04','TNC12','TNC14','TNC06','TNC25'];
 
 % % With this you will need to select the .plx file that I send you, and it
 % % will take the spike times and event times
@@ -33,8 +33,8 @@ if length(animal_list) > 2
                 
                 %Clear some variables to ensure they don't affect trials
                 %going forward. (Probably not needed, will test later)
-                clear dat spk seqTrain result event1_neural_traj event3_neural_traj event4_neural_traj event6_neural_traj estParams Spikes confusion_matrix correct1 correct2 correct3 correct4...
-                    ConfusionValues
+                % clear dat spk seqTrain result event1_neural_traj event3_neural_traj event4_neural_traj event6_neural_traj estParams Spikes confusion_matrix correct1 correct2 correct3 correct4...
+                %    ConfusionValues
                 path = animal_path;
                 file = animal_name_path(day).name;
                 pathfile = char(strcat(path,file));
@@ -365,12 +365,10 @@ if length(animal_list) > 2
                         %% Bin is now 1 ms
                         %bin size is 0.001 seconds (1 ms)
                         dimensions=length(spiketimes);
-                        bin = 0.001;
-                        edge=0:bin:0.4;
                         total_trials = 100;
                         % classifier bin size
-                        binsize=.001;  %seconds
-                        bin_size = binsize;
+                        bin_size = 0.020;
+                        edge=0:bin_size:0.4;
                         % classifier window before time zero
                         pretime=0;   %seconds
                         pre_time = pretime;
@@ -393,7 +391,9 @@ if length(animal_list) > 2
                         
                         % reltotalspikes = [relspikes1;relspikes3;relspikes4;relspikes6];
                         reltotalspikes = event_spike_times(neurons, all_events, total_trials, total_bins, bin_size, pre_time, post_time);
-                       
+
+
+                       %! This causes crashes when total events < 400
                         relspikes1 =reltotalspikes(1:100,:);
                         relspikes3 =reltotalspikes(101:200,:);
                         relspikes4 =reltotalspikes(201:300,:);
@@ -549,7 +549,7 @@ if length(animal_list) > 2
                         
                         %% Run PSTH
                         PSTH = NeuroToolbox.PSTHToolbox.PSTH(Spikes,Reference,...
-                            'bin_size',binsize,'PSTH_window',[pretime,posttime],...
+                            'bin_size',bin_size,'PSTH_window',[pretime,posttime],...
                             'show_progress',true);
                         
                         % create template from PSTH object
